@@ -1,0 +1,8 @@
+/.vscode/
+/build/
+hello.cc
+a.out
+/test-darts.dic
+/.kotlin/
+/kotlin-js-store/
+bin/
