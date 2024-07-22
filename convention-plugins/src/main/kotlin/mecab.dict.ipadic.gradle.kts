@@ -1,5 +1,4 @@
 import io.github.tokuhirom.kdary.KDary
-import io.github.tokuhirom.kdary.saveKDary
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
@@ -10,13 +9,15 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Path
+import java.util.Locale
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+
 
 open class BuildDictTask : DefaultTask() {
     private val url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
     private val tarball = "mecab-ipadic.tar.gz"
     private val outputDir = "dict"
-    private val outputCsv = "$outputDir/momiji.csv"
-    private val outputKdary = "$outputDir/momiji.kdary"
 
     @TaskAction
     fun run() {
@@ -78,43 +79,109 @@ open class BuildDictTask : DefaultTask() {
                         .parse(it)
                 }.sortedBy { it.surface }
 
-        File(outputCsv).writeText(lines.joinToString("\n"))
+        val outputCsv =
+            project.layout.projectDirectory
+                .asFile
+                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic")
+
+        writeChunks(
+            outputCsv,
+            lines.joinToString("\n") { it.raw },
+            filePrefix = "DictCsv",
+            variablePrefix = "DICT_CSV",
+        )
         println("Converted to $outputCsv")
 
         return lines
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun buildKdary(wordEntries: List<io.github.tokuhirom.momiji.gradle.CsvRow>) {
         val kdary = KDary.build(wordEntries.map { it.surface.toByteArray(Charsets.UTF_8) })
-        saveKDary(kdary, outputKdary)
-        println("Built KDary dictionary at $outputKdary")
+        val byteArray = kdary.toByteArray()
+
+        val baseDir =
+            project.layout.projectDirectory
+                .asFile
+                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic")
+
+        val src = Base64.encode(byteArray)
+        writeChunks(baseDir, src, filePrefix = "KDary", variablePrefix = "KDARY_BASE64")
+
+        println("Wrote dictionary to $baseDir")
+    }
+
+    private fun writeChunks(
+        baseDir: File,
+        src: String,
+        filePrefix: String,
+        variablePrefix: String,
+    ) {
+        val chunks = src.chunked(64 * 1024)
+        chunks.forEachIndexed { index, chunk ->
+            baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
+                writer.write("package io.github.tokuhirom.momiji.ipadic\n\n")
+                writer.write("internal const val ${variablePrefix}_$index = \"\"\"$chunk\"\"\"\n")
+                writer.newLine()
+            }
+        }
+
+        baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
+            writer.write("package io.github.tokuhirom.momiji.ipadic\n\n")
+            writer.write("const val $variablePrefix = listOf(\n")
+            chunks.forEachIndexed { index, _ ->
+                writer.write("    ${variablePrefix}_$index")
+                if (index != chunks.size - 1) {
+                    writer.write(",")
+                }
+                writer.newLine()
+            }
+            writer.write(").joinToString(\"\")\n")
+        }
     }
 
     private fun copyFiles(mecabDictDir: Path) {
         listOf("matrix.def", "char.def", "unk.def").forEach { file ->
             val sourceFile = File(mecabDictDir.toFile(), file)
-            val targetFile = File(outputDir, file)
-            copyFileWithEncoding(sourceFile, targetFile, "EUC-JP", "UTF-8")
+            val targetFile =
+                project.layout.projectDirectory
+                    .asFile
+                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic")
+                    .resolve(
+                        file
+                            .replace(".def", ".kt")
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                    )
+            targetFile.parentFile.mkdirs()
+            sourceFile.bufferedReader(Charset.forName("EUC-JP")).use { reader ->
+                writeToFile(
+                    file.replace(".def", ""),
+                    reader.readText(),
+                    targetFile,
+                )
+            }
             println("Copied $file to $outputDir")
         }
     }
 
-    private fun copyFileWithEncoding(
-        source: File,
+    private fun writeToFile(
+        variableName: String,
+        src: String,
         target: File,
-        sourceEncoding: String,
-        targetEncoding: String,
     ) {
-        val sourceCharset = Charset.forName(sourceEncoding)
-        val targetCharset = Charset.forName(targetEncoding)
-
-        source.bufferedReader(sourceCharset).use { reader ->
-            target.bufferedWriter(targetCharset).use { writer ->
-                reader.lineSequence().forEach { line ->
-                    writer.write(line)
-                    writer.newLine()
-                }
-            }
+        val escaped = escapeKotlinString(src)
+        target.bufferedWriter().use { writer ->
+            writer.write("package io.github.tokuhirom.momiji.ipadic\n\n")
+            writer.write("const val ${variableName.uppercase(Locale.getDefault())} = \"\"\"$escaped\"\"\"\n")
+            writer.newLine()
         }
     }
+
+    private fun escapeKotlinString(src: String): String =
+        src
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\$", "\${'\$'}")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
 }

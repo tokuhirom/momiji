@@ -31,8 +31,10 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("src/generated/commonMain/kotlin")
+
             dependencies {
-                implementation("io.github.tokuhirom.kdary:kdary:0.9.1")
+                implementation("io.github.tokuhirom.kdary:kdary:0.9.2")
             }
         }
     }
