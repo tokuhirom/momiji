@@ -1,4 +1,4 @@
-package io.github.tokuhirom.kdary.samples.momiji.entity
+package io.github.tokuhirom.momiji.model
 
 data class WordEntry(
     val surface: String, // 表層形
