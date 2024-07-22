@@ -1,22 +1,27 @@
 plugins {
-    kotlin("jvm")
-    application
+    id("root.publication")
+    id("module.publication")
+
+    kotlin("multiplatform") version "2.0.0" apply false
+
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("com.vanniktech.maven.publish") version "0.29.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
-    implementation(rootProject)
-    implementation("com.github.ajalt.clikt:clikt:4.4.0")
+group = "io.github.tokuhirom.kdary"
+version = System.getenv("LIB_VERSION") ?: (
+    "1.0.0" +
+        if (hasProperty("release")) {
+            ""
+        } else {
+            "-SNAPSHOT"
+        }
+)
 
-    implementation("io.ktor:ktor-client-core:2.3.12")
-    implementation("io.ktor:ktor-client-cio:2.3.12")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
-
-    implementation("com.squareup.okio:okio:3.9.0")
-}
-
-application {
-    mainClass.set("io.github.tokuhirom.kdary.samples.momiji.MainKt")
-    applicationDefaultJvmArgs = listOf("-Xmx2g")
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }

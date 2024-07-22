@@ -1,10 +1,15 @@
 # momiji
 
 KDary を利用した形態素解析エンジンの実装です。
+KMP(Kotlin multiplatform) 
 
-(完成まで至った場合、レポジトリを分割します)
+MeCab の辞書を利用しています。工藤 拓氏の [実践・自然言語処理シリーズ2　形態素解析の理論と実装](https://amzn.to/3Y9Ufo3) を参考に実装していて、
+基本的な挙動は MeCab と同じになるようにしています。
 
-`:samples:longest-match` と異なり、最小コスト法による実装をします。
+以下の artifact があります。
+
+- momiji-engine: 形態素解析エンジンのパッケージ
+- momiji-ipadic: ipadic の辞書のパッケージ(kotlin コードに変換してバンドルしています)
 
 ## 参考文献
 

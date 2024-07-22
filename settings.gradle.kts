@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("convention-plugins")
     repositories {
         google()
         mavenCentral()
@@ -11,3 +12,4 @@ plugins {
 
 rootProject.name = "momiji"
 
+include(":momiji-engine")
