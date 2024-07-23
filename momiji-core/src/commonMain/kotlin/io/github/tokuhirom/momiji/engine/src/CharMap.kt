@@ -32,6 +32,7 @@ class CharMap(
             it.name
         }
 
+    // TODO: This implementation doesn't care about the aliases.
     fun resolve(char: Char): CharCategory? =
         codepoint2category[char.code]?.let {
             categories[it.defaultCategory]!!
@@ -43,7 +44,7 @@ class CharMap(
         /**
          * Parse a text representation of a character map.
          * It's the char.def in mecab's dictionary.
-         *
+         *f
          * @param src The text representation of the character map.
          */
         fun parseText(src: String): CharMap {

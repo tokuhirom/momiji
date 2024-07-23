@@ -80,7 +80,17 @@ class MomijiIpadicLoaderTest {
                     "ある / 助動詞,*,*,*,五段・ラ行アル,基本形,ある,アル,アル",
                     "__EOS__ / null",
                 ),
-            // TODO: 一億円、みたいなケースとかがうまく判定できなさそう。char.def の alias をケアしていないので。
+            "一億三千万円" to
+                listOf(
+                    "__BOS__ / null",
+                    "一 / 名詞,数,*,*,*,*,一,イチ,イチ",
+                    "億 / 名詞,数,*,*,*,*,億,オク,オク",
+                    "三 / 名詞,数,*,*,*,*,三,サン,サン",
+                    "千 / 名詞,数,*,*,*,*,千,セン,セン",
+                    "万 / 名詞,数,*,*,*,*,万,マン,マン",
+                    "円 / 名詞,接尾,助数詞,*,*,*,円,エン,エン",
+                    "__EOS__ / null",
+                ),
         ).forEach { (input, expected) ->
             println("# $input")
             val lattice = engine.buildLattice(input)
