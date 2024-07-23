@@ -33,7 +33,7 @@ open class BuildDictTask : DefaultTask() {
         download()
         val mecabDictDir = extract()
         buildDict(mecabDictDir)
-//        val wordEntries = convertFiles(mecabDictDir)
+        val wordEntries = convertFiles(mecabDictDir)
 //        buildKdary(wordEntries)
 //        copyFiles(mecabDictDir)
     }
@@ -156,16 +156,16 @@ open class BuildDictTask : DefaultTask() {
             }
         }
 
-        baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
-            writer.write("package $pkg\n\n")
-            writer.write("val $variablePrefix = ")
-            writer.write(
-                List(chunks.size) { index ->
-                    "${variablePrefix}_$index"
-                }.joinToString("+"),
-            )
-            writer.write("\n\n")
-        }
+//        baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
+//            writer.write("package $pkg\n\n")
+//            writer.write("val $variablePrefix = ")
+//            writer.write(
+//                List(chunks.size) { index ->
+//                    "${variablePrefix}_$index"
+//                }.joinToString("+"),
+//            )
+//            writer.write("\n\n")
+//        }
     }
 
     @OptIn(ExperimentalEncodingApi::class)
