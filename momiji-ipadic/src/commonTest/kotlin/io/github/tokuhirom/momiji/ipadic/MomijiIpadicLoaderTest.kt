@@ -25,8 +25,9 @@ class MomijiIpadicLoaderTest {
     fun testLoadCharMap() {
         val loader = MomijiIpadicLoader()
         val charMap = loader.loadCharMap()
-        assertEquals("KANJI", charMap.resolve('一')?.name)
-        assertEquals("KANJI", charMap.resolve('億')?.name)
+        assertEquals("KANJINUMERIC", charMap.resolve('一')?.name)
+        assertEquals("KANJINUMERIC", charMap.resolve('億')?.name)
+        assertEquals("KANJI", charMap.resolve('愛')?.name)
         assertEquals("SYMBOL", charMap.resolve('&')?.name)
     }
 
@@ -77,6 +78,17 @@ class MomijiIpadicLoaderTest {
                     "エンジン / 名詞,一般,*,*,*,*,エンジン,エンジン,エンジン",
                     "で / 助動詞,*,*,*,特殊・ダ,連用形,だ,デ,デ",
                     "ある / 助動詞,*,*,*,五段・ラ行アル,基本形,ある,アル,アル",
+                    "__EOS__ / null",
+                ),
+            "一億三千万円" to
+                listOf(
+                    "__BOS__ / null",
+                    "一 / 名詞,数,*,*,*,*,一,イチ,イチ",
+                    "億 / 名詞,数,*,*,*,*,億,オク,オク",
+                    "三 / 名詞,数,*,*,*,*,三,サン,サン",
+                    "千 / 名詞,数,*,*,*,*,千,セン,セン",
+                    "万 / 名詞,数,*,*,*,*,万,マン,マン",
+                    "円 / 名詞,接尾,助数詞,*,*,*,円,エン,エン",
                     "__EOS__ / null",
                 ),
         ).forEach { (input, expected) ->
