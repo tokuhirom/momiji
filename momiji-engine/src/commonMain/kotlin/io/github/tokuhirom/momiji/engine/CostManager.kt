@@ -30,6 +30,6 @@ data class CostManager(
                 is Node.Word -> right.dictRow?.leftId ?: return 0
             }
 
-        return matrix.find(leftRightId, rightLeftId, 0)
+        return matrix.find(leftRightId, rightLeftId)
     }
 }

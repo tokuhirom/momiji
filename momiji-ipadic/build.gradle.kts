@@ -49,7 +49,7 @@ kotlin {
 tasks.register<BuildDictTask>("buildDict")
 
 // Example task dependency
-tasks.getByName("build").dependsOn("buildDict")
+// tasks.getByName("build").dependsOn("buildDict")
 
 /*
 mavenPublishing {

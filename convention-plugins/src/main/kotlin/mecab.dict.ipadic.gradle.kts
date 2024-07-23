@@ -17,14 +17,13 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 open class BuildDictTask : DefaultTask() {
     private val url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
     private val tarball = "mecab-ipadic.tar.gz"
-    private val outputDir = "dict"
 
     @TaskAction
     fun run() {
-        // mkdir $outputDir if it's not exists
-        if (!File(outputDir).exists()) {
-            File(outputDir).mkdir()
-        }
+        project.layout.projectDirectory
+            .asFile
+            .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/")
+            .deleteRecursively()
 
         // mkdir -p build
         project.layout.buildDirectory
@@ -34,6 +33,7 @@ open class BuildDictTask : DefaultTask() {
 
         download()
         val mecabDictDir = extract()
+        buildDict(mecabDictDir)
         val wordEntries = convertFiles(mecabDictDir)
         buildKdary(wordEntries)
         copyFiles(mecabDictDir)
@@ -60,6 +60,22 @@ open class BuildDictTask : DefaultTask() {
         process.waitFor()
         println("Extracted to $buildDir")
         return buildDir.toPath().resolve("mecab-ipadic-2.7.0-20070801")
+    }
+
+    private fun buildDict(dictDir: Path) {
+        listOf(
+            listOf("./configure", "--with-charset", "utf-8"),
+            listOf("make"),
+        ).forEach { command ->
+            val processBuilder =
+                ProcessBuilder(command)
+                    .directory(dictDir.toFile())
+                    .redirectErrorStream(true)
+            val process = processBuilder.start()
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            val status = process.waitFor()
+            println("$command: $status: $output")
+        }
     }
 
     private fun convertFiles(mecabDictDir: Path): List<io.github.tokuhirom.momiji.gradle.CsvRow> {
@@ -150,6 +166,7 @@ open class BuildDictTask : DefaultTask() {
         }
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     private fun copyFiles(mecabDictDir: Path) {
         listOf("matrix.def", "char.def", "unk.def").forEach { file ->
             val baseName = file.replace(".def", "")
@@ -171,7 +188,27 @@ open class BuildDictTask : DefaultTask() {
                     variablePrefix = baseName.uppercase(Locale.getDefault()),
                 )
             }
-            println("Copied $file to $outputDir")
+            println("Copied $file")
+        }
+
+        // write matrix.bin
+        run {
+            val sourceFile: File = mecabDictDir.toFile().resolve("matrix.bin")
+            val baseDir =
+                project.layout.projectDirectory
+                    .asFile
+                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/matrix")
+
+            val bytes = sourceFile.readBytes()
+            val base64 = Base64.encode(bytes)
+            writeChunks(
+                baseDir,
+                src = base64,
+                pkg = "io.github.tokuhirom.momiji.ipadic.matrix",
+                filePrefix = "Matrix",
+                variablePrefix = "Matrix",
+            )
+            println("Copied matrix.bin")
         }
     }
 

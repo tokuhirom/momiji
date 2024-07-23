@@ -62,7 +62,7 @@ class Lattice(
                 for (lnode in endNodes[i]) {
                     val cost =
                         lnode.minCost +
-                            costManager.getTransitionCost(lnode, rnode) + // transition cost
+                            costManager.getTransitionCost(lnode, rnode).toInt() + // transition cost
                             costManager.getEmissionCost(rnode) // emission cost
                     if (cost < rnode.minCost) {
                         rnode.minCost = cost
@@ -108,7 +108,7 @@ class Lattice(
             for (rnode in beginNodes[i]) {
                 sb.append("  /* rnode:${rnode.surface} */\n")
                 for (lnode in endNodes[i]) {
-                    val transitionCost = costManager.getTransitionCost(lnode, rnode)
+                    val transitionCost = costManager.getTransitionCost(lnode, rnode).toInt()
                     val emissionCost = costManager.getEmissionCost(rnode)
                     val totalCost = transitionCost + emissionCost
                     sb.append(

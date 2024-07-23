@@ -9,7 +9,6 @@ import io.github.tokuhirom.momiji.engine.src.Dict
 import io.github.tokuhirom.momiji.engine.src.matrix.Matrix
 import io.github.tokuhirom.momiji.ipadic.char.CHAR
 import io.github.tokuhirom.momiji.ipadic.kdary.KDARY_BASE64
-import io.github.tokuhirom.momiji.ipadic.matrix.MATRIX
 import io.github.tokuhirom.momiji.ipadic.unk.UNK
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -22,7 +21,7 @@ class MomijiIpadicLoader {
 
         val dict = Dict.parse(DICT_CSV)
 
-        val matrix = Matrix.parse(MATRIX)
+        val matrix = loadMatrix()
 
         val charMap = CharMap.parse(CHAR)
         val unknown = Dict.parse(UNK)
@@ -31,4 +30,12 @@ class MomijiIpadicLoader {
 
         return MomijiEngine(kdary, dict, costManager, charMap, unknown)
     }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    fun loadMatrix(): Matrix = Matrix.parseBinary(Base64.decode(io.github.tokuhirom.momiji.ipadic.matrix.Matrix))
+}
+
+fun main() {
+    val loader = MomijiIpadicLoader()
+    loader.load()
 }
