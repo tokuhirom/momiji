@@ -147,11 +147,15 @@ open class BuildDictTask : DefaultTask() {
         // https://stackoverflow.com/questions/62098263/kotlin-string-max-length-kotlin-file-with-a-long-string-is-not-compiling
         val chunks = splitStringByBytes(src)
 
-        chunks.forEachIndexed { index, chunk ->
+        chunks.chunked(10).forEachIndexed { index, chunk ->
             baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
                 writer.write("@file:Suppress(\"ktlint:standard:max-line-length\")\n\n")
                 writer.write("package $pkg\n\n")
-                writer.write("internal const val ${variablePrefix}_$index = \"\"\"${escapeKotlinString(chunk)}\"\"\"\n")
+                writer.write("internal val ${variablePrefix}_$index = listOf(\n")
+                chunk.forEach {
+                    writer.write("    \"\"\"${escapeKotlinString(it)}\"\"\",\n")
+                }
+                writer.write(").joinToString(\"\")\n")
                 writer.newLine()
             }
         }
