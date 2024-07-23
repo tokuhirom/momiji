@@ -25,8 +25,9 @@ class MomijiIpadicLoaderTest {
     fun testLoadCharMap() {
         val loader = MomijiIpadicLoader()
         val charMap = loader.loadCharMap()
-        assertEquals("KANJI", charMap.resolve('一')?.name)
-        assertEquals("KANJI", charMap.resolve('億')?.name)
+        assertEquals("KANJINUMERIC", charMap.resolve('一')?.name)
+        assertEquals("KANJINUMERIC", charMap.resolve('億')?.name)
+        assertEquals("KANJI", charMap.resolve('愛')?.name)
         assertEquals("SYMBOL", charMap.resolve('&')?.name)
     }
 
@@ -79,6 +80,7 @@ class MomijiIpadicLoaderTest {
                     "ある / 助動詞,*,*,*,五段・ラ行アル,基本形,ある,アル,アル",
                     "__EOS__ / null",
                 ),
+            // TODO: 一億円、みたいなケースとかがうまく判定できなさそう。char.def の alias をケアしていないので。
         ).forEach { (input, expected) ->
             println("# $input")
             val lattice = engine.buildLattice(input)

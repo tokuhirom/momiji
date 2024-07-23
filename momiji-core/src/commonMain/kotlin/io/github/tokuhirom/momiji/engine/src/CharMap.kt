@@ -25,27 +25,19 @@ data class CodepointRange(
  */
 class CharMap(
     charCategories: List<CharCategory>,
-    codepointRanges: List<CodepointRange>,
+    private val codepoint2category: Array<CodepointRange?>,
 ) {
     private val categories: Map<String, CharCategory> =
         charCategories.associateBy {
             it.name
         }
-    private val ranges: List<Pair<CharRange, String>> =
-        codepointRanges
-            .map {
-                (it.start.toChar()..it.end.toChar()) to it.defaultCategory
-            }.toList()
 
     fun resolve(char: Char): CharCategory? =
-        ranges
-            .firstOrNull {
-                it.first.contains(char)
-            }?.let {
-                categories[it.second]!!
-            }
+        codepoint2category[char.code]?.let {
+            categories[it.defaultCategory]!!
+        }
 
-    override fun toString(): String = "CharMap(categories=$categories, ranges=$ranges)"
+    override fun toString(): String = "CharMap(categories=$categories, codepoint2category=$codepoint2category   )"
 
     companion object {
         /**
@@ -83,7 +75,18 @@ class CharMap(
                 }
             }
 
-            return CharMap(categories, codepoints)
+            val codepoint2category = buildArray(codepoints)
+            return CharMap(categories, codepoint2category)
+        }
+
+        private fun buildArray(codepointRanges: List<CodepointRange>): Array<CodepointRange?> {
+            val categoryArray: Array<CodepointRange?> = arrayOfNulls(65536)
+            codepointRanges.forEach { range ->
+                for (codepoint in range.start..range.end) {
+                    categoryArray[codepoint] = range
+                }
+            }
+            return categoryArray
         }
     }
 }
