@@ -15,7 +15,10 @@ data class Matrix(
     ): Short = matrix[leftContextId + lsize * rightContextId]
 
     companion object {
-        // see mecab/src/connector.cpp
+        /**
+         * Parse Mecab's matrix.bin format
+         * @see <a href="https://github.com/taku910/mecab/blob/master/mecab/src/connector.cpp">mecab/src/connector.cpp</a>
+         */
         fun parseBinary(src: ByteArray): Matrix {
             // little endian
             val lsize = src[0].toInt() + (src[1].toInt() shl 8)
@@ -27,6 +30,9 @@ data class Matrix(
             return Matrix(lsize, rsize, matrix)
         }
 
+        /**
+         * Parse Mecab's matrix.def format
+         */
         fun parseText(src: String): Matrix {
             // 最初の行に連接表のサイズ(前件サイズ, 後件サイズ)を書きます. その後は, 連接表の前件の文脈 ID, 後件の文脈IDと, それに対応するコストを書きます.
 
