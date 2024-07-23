@@ -82,11 +82,12 @@ open class BuildDictTask : DefaultTask() {
         val outputCsv =
             project.layout.projectDirectory
                 .asFile
-                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic")
+                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/dictcsv")
 
         writeChunks(
             outputCsv,
-            lines.joinToString("\n") { it.raw },
+            src = lines.joinToString("\n") { it.raw },
+            pkg = "io.github.tokuhirom.momiji.dictcsv",
             filePrefix = "DictCsv",
             variablePrefix = "DICT_CSV",
         )
@@ -103,10 +104,16 @@ open class BuildDictTask : DefaultTask() {
         val baseDir =
             project.layout.projectDirectory
                 .asFile
-                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic")
+                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/kdary")
 
         val src = Base64.encode(byteArray)
-        writeChunks(baseDir, src, filePrefix = "KDary", variablePrefix = "KDARY_BASE64")
+        writeChunks(
+            baseDir,
+            src,
+            pkg = "io.github.tokuhirom.momiji.ipadic.kdary",
+            filePrefix = "KDary",
+            variablePrefix = "KDARY_BASE64",
+        )
 
         println("Wrote dictionary to $baseDir")
     }
@@ -114,21 +121,24 @@ open class BuildDictTask : DefaultTask() {
     private fun writeChunks(
         baseDir: File,
         src: String,
+        pkg: String,
         filePrefix: String,
         variablePrefix: String,
     ) {
+        baseDir.mkdirs()
+
         val chunks = src.chunked(64 * 1024)
         chunks.forEachIndexed { index, chunk ->
             baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
-                writer.write("package io.github.tokuhirom.momiji.ipadic\n\n")
-                writer.write("internal const val ${variablePrefix}_$index = \"\"\"$chunk\"\"\"\n")
+                writer.write("package $pkg\n\n")
+                writer.write("internal val ${variablePrefix}_$index = \"\"\"${escapeKotlinString(chunk)}\"\"\"\n")
                 writer.newLine()
             }
         }
 
         baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
-            writer.write("package io.github.tokuhirom.momiji.ipadic\n\n")
-            writer.write("const val $variablePrefix = listOf(\n")
+            writer.write("package $pkg\n\n")
+            writer.write("val $variablePrefix = listOf(\n")
             chunks.forEachIndexed { index, _ ->
                 writer.write("    ${variablePrefix}_$index")
                 if (index != chunks.size - 1) {
@@ -142,38 +152,26 @@ open class BuildDictTask : DefaultTask() {
 
     private fun copyFiles(mecabDictDir: Path) {
         listOf("matrix.def", "char.def", "unk.def").forEach { file ->
+            val baseName = file.replace(".def", "")
             val sourceFile = File(mecabDictDir.toFile(), file)
-            val targetFile =
+            val baseDir =
                 project.layout.projectDirectory
                     .asFile
-                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic")
-                    .resolve(
-                        file
-                            .replace(".def", ".kt")
-                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                    )
-            targetFile.parentFile.mkdirs()
+                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/$baseName")
+
             sourceFile.bufferedReader(Charset.forName("EUC-JP")).use { reader ->
-                writeToFile(
-                    file.replace(".def", ""),
-                    reader.readText(),
-                    targetFile,
+                writeChunks(
+                    baseDir,
+                    src = reader.readText(),
+                    pkg = "io.github.tokuhirom.momiji.ipadic.$baseName",
+                    filePrefix =
+                        baseName.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                        },
+                    variablePrefix = baseName.uppercase(Locale.getDefault()),
                 )
             }
             println("Copied $file to $outputDir")
-        }
-    }
-
-    private fun writeToFile(
-        variableName: String,
-        src: String,
-        target: File,
-    ) {
-        val escaped = escapeKotlinString(src)
-        target.bufferedWriter().use { writer ->
-            writer.write("package io.github.tokuhirom.momiji.ipadic\n\n")
-            writer.write("const val ${variableName.uppercase(Locale.getDefault())} = \"\"\"$escaped\"\"\"\n")
-            writer.newLine()
         }
     }
 

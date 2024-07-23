@@ -1,6 +1,8 @@
 package io.github.tokuhirom.kdary.samples.momiji.engine
 
-import io.github.tokuhirom.kdary.samples.momiji.entity.WordEntry
+import io.github.tokuhirom.momiji.engine.CostManager
+import io.github.tokuhirom.momiji.engine.Node
+import io.github.tokuhirom.momiji.engine.src.DictRow
 
 /**
  * Every index should be the character index.
@@ -29,13 +31,13 @@ class Lattice(
     internal fun insert(
         begin: Int,
         end: Int,
-        wordEntry: WordEntry? = null,
+        dictRow: DictRow? = null,
     ): Node {
         val node =
             Node.Word(
                 surface = sentence.substring(begin, end),
                 length = end - begin,
-                wordEntry = wordEntry,
+                dictRow = dictRow,
             )
         beginNodes[begin].add(node)
         endNodes[end].add(node)
@@ -95,8 +97,8 @@ class Lattice(
         // ノードのエクスポート
         for (i in beginNodes.indices) {
             for (node in beginNodes[i]) {
-                val label = node.surface.replace("\"", "\\\"") + node.wordEntry?.annotations?.joinToString(",")
-                sb.append("node_${node.hashCode().toUInt()} [label=\"$label (${node.wordEntry?.cost ?: "?"})\"];\n")
+                val label = node.surface.replace("\"", "\\\"") + node.dictRow?.annotations?.joinToString(",")
+                sb.append("node_${node.hashCode().toUInt()} [label=\"$label (${node.dictRow?.cost ?: "?"})\"];\n")
             }
         }
 
@@ -110,7 +112,7 @@ class Lattice(
                     val emissionCost = costManager.getEmissionCost(rnode)
                     val totalCost = transitionCost + emissionCost
                     sb.append(
-                        "    /* lnode:${lnode.surface}(rid=${lnode.wordEntry?.rightId}) rnode:${rnode.surface}(lid=${rnode.wordEntry?.leftId}) */\n",
+                        "    /* lnode:${lnode.surface}(rid=${lnode.dictRow?.rightId}) rnode:${rnode.surface}(lid=${rnode.dictRow?.leftId}) */\n",
                     )
                     sb.append(
                         "    node_${lnode.hashCode().toUInt()} -> node_${rnode.hashCode().toUInt()} [label=\"$totalCost\"];\n",

@@ -13,3 +13,4 @@ noun.kdary
 build/
 momiji.csv
 momiji.kdary
+*.hprof

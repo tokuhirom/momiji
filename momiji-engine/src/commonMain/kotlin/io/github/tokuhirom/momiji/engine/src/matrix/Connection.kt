@@ -1,4 +1,4 @@
-package io.github.tokuhirom.kdary.samples.momiji.engine
+package io.github.tokuhirom.momiji.engine.src.matrix
 
 data class Connection(
     val leftContextId: Int, // 前件文脈ID

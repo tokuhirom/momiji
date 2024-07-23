@@ -1,6 +1,29 @@
-package io.github.tokuhirom.momiji.model
+package io.github.tokuhirom.momiji.engine.src
 
-data class WordEntry(
+import io.github.tokuhirom.momiji.engine.src.DictRow.Companion.parseLine
+
+data class Dict(
+    val data: Map<String, List<DictRow>>,
+) {
+    operator fun get(s: String): List<DictRow> = data.getOrDefault(s, emptyList())
+
+    companion object {
+        fun parse(src: String): Dict =
+            Dict(
+                src
+                    .split("\n")
+                    .filter {
+                        it.isNotBlank()
+                    }.map {
+                        parseLine(it)
+                    }.groupBy {
+                        it.surface
+                    },
+            )
+    }
+}
+
+data class DictRow(
     val surface: String, // 表層形
     val leftId: Int, // 左文脈ID
     val rightId: Int, // 右文脈ID
@@ -18,9 +41,9 @@ data class WordEntry(
         ).joinToString(",")
 
     companion object {
-        fun parse(line: String): WordEntry {
+        fun parseLine(line: String): DictRow {
             val columns = line.split(",")
-            return WordEntry(
+            return DictRow(
                 surface = columns[0],
                 leftId = columns[1].toInt(),
                 rightId = columns[2].toInt(),

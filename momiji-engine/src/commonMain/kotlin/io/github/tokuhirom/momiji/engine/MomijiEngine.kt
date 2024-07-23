@@ -1,21 +1,18 @@
-package io.github.tokuhirom.kdary.samples.momiji.engine
+package io.github.tokuhirom.momiji.engine
 
 import io.github.tokuhirom.kdary.KDary
-import io.github.tokuhirom.kdary.samples.momiji.entity.WordEntry
+import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
+import io.github.tokuhirom.momiji.engine.src.CharMap
+import io.github.tokuhirom.momiji.engine.src.Dict
 import kotlin.math.max
 
 data class MomijiEngine(
     private val kdary: KDary,
-    private val wordEntries: Map<String, List<WordEntry>>,
+    private val dict: Dict,
     internal val costManager: CostManager,
     private val charMap: CharMap,
-    private val unknownWordsMap: Map<String, List<WordEntry>>,
+    private val unknown: Dict,
 ) {
-    fun analysis(src: String): List<Node> {
-        val lattice = buildLattice(src)
-        return lattice.viterbi()
-    }
-
     fun buildLattice(src: String): Lattice {
         val lattice = Lattice(src, costManager)
 
@@ -26,7 +23,7 @@ data class MomijiEngine(
             var hasSingleWord = false
             results.forEach { word ->
                 val s = bytes.decodeToString(0, word.length)
-                wordEntries[s]?.forEach { wordEntry ->
+                dict[s].forEach { wordEntry ->
                     lattice.insert(i, i + s.length, wordEntry)
                 }
                 if (s.length == 1) {
@@ -50,14 +47,14 @@ data class MomijiEngine(
                                 i,
                                 i + last + 1, // +1 since this parameter is exclusive.
                             )
-                        unknownWordsMap[charCategory.name]!!.forEach { wordEntry ->
+                        unknown[charCategory.name].forEach { wordEntry ->
                             lattice.insert(i, i + last + 1, wordEntry)
                         }
                         if (s.length == 1) {
                             hasSingleWord = true
                         }
                     } else {
-                        unknownWordsMap[charCategory.name]!!.forEach { wordEntry ->
+                        unknown[charCategory.name].forEach { wordEntry ->
                             lattice.insert(i, i + 1, wordEntry)
                         }
                         hasSingleWord = true

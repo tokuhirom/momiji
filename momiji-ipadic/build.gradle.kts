@@ -34,7 +34,13 @@ kotlin {
             kotlin.srcDir("src/generated/commonMain/kotlin")
 
             dependencies {
+                implementation(project(":momiji-engine"))
                 implementation("io.github.tokuhirom.kdary:kdary:0.9.2")
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
             }
         }
     }
