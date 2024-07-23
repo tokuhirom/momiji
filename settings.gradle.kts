@@ -14,4 +14,3 @@ rootProject.name = "momiji"
 
 include(":momiji-engine")
 include(":momiji-ipadic")
-include(":momiji-model")
