@@ -9,7 +9,7 @@ import kotlin.math.max
 data class MomijiEngine(
     private val kdary: KDary,
     private val dict: Dict,
-    internal val costManager: CostManager,
+    val costManager: CostManager,
     private val charMap: CharMap,
     private val unknown: Dict,
 ) {

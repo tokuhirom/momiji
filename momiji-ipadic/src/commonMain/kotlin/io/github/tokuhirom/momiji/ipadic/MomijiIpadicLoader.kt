@@ -33,9 +33,29 @@ class MomijiIpadicLoader {
 
     @OptIn(ExperimentalEncodingApi::class)
     fun loadMatrix(): Matrix = Matrix.parseBinary(Base64.decode(io.github.tokuhirom.momiji.ipadic.matrix.Matrix))
+
+    fun loadCharMap(): CharMap = CharMap.parseText(CHAR)
 }
 
 fun main() {
     val loader = MomijiIpadicLoader()
-    loader.load()
+    val engine = loader.load()
+    val lattice = engine.buildLattice("布団が吹っ飛んだ")
+    lattice.viterbi().forEachIndexed { index, node ->
+        val transitionCost =
+            node.minPrev?.let { prev ->
+                engine.costManager.getTransitionCost(prev, node)
+            } ?: 0
+
+        println(
+            String.format(
+                "%3d transition=%-10d emission=%-10d %-20s %s",
+                index,
+                transitionCost,
+                node.dictRow?.cost,
+                node.surface,
+                node.dictRow?.annotations?.joinToString(","),
+            ),
+        )
+    }
 }

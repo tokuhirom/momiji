@@ -219,5 +219,4 @@ open class BuildDictTask : DefaultTask() {
             .replace("\"", "\\\"")
             .replace("\$", "\${'\$'}")
             .replace("\r", "\\r")
-            .replace("\t", "\\t")
 }
