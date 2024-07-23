@@ -12,6 +12,5 @@ plugins {
 
 rootProject.name = "momiji"
 
-include(":momiji-engine")
+include(":momiji-core")
 include(":momiji-ipadic")
-include(":momiji-model")
