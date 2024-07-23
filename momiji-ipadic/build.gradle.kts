@@ -34,7 +34,7 @@ kotlin {
             kotlin.srcDir("src/generated/commonMain/kotlin")
 
             dependencies {
-                implementation(project(":momiji-engine"))
+                implementation(project(":momiji-core"))
                 implementation("io.github.tokuhirom.kdary:kdary:0.9.2")
             }
         }

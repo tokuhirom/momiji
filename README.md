@@ -8,7 +8,7 @@ MeCab の辞書を利用可能です。工藤 拓氏の [実践・自然言語�
 
 以下の artifact があります。
 
-- momiji-engine: 形態素解析エンジンのパッケージ
+- momiji-core: 形態素解析エンジンのパッケージ
 - momiji-ipadic: mecab-ipadic の辞書のパッケージ(kotlin コードに変換してバンドルしています)
 
 ## 参考文献
