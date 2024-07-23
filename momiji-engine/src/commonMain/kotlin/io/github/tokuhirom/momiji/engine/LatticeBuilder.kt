@@ -6,7 +6,7 @@ import io.github.tokuhirom.momiji.engine.src.CharMap
 import io.github.tokuhirom.momiji.engine.src.Dict
 import kotlin.math.max
 
-data class MomijiEngine(
+data class LatticeBuilder(
     private val kdary: KDary,
     private val dict: Dict,
     val costManager: CostManager,

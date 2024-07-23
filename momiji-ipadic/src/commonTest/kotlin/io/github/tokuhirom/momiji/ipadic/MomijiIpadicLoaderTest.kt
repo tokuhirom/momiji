@@ -29,4 +29,69 @@ class MomijiIpadicLoaderTest {
         assertEquals("KANJI", charMap.resolve('億')?.name)
         assertEquals("SYMBOL", charMap.resolve('&')?.name)
     }
+
+    @Test
+    fun testMain() {
+        val loader = MomijiIpadicLoader()
+        val engine = loader.load()
+
+        listOf(
+            "東京都" to
+                listOf(
+                    "__BOS__ / null",
+                    "東京 / 名詞,固有名詞,地域,一般,*,*,東京,トウキョウ,トーキョー",
+                    "都 / 名詞,接尾,地域,*,*,*,都,ト,ト",
+                    "__EOS__ / null",
+                ),
+            "自然言語" to
+                listOf(
+                    "__BOS__ / null",
+                    "自然 / 名詞,形容動詞語幹,*,*,*,*,自然,シゼン,シゼン",
+                    "言語 / 名詞,一般,*,*,*,*,言語,ゲンゴ,ゲンゴ",
+                    "__EOS__ / null",
+                ),
+            "吾輩はネコである。" to
+                listOf(
+                    "__BOS__ / null",
+                    "吾輩 / 名詞,代名詞,一般,*,*,*,吾輩,ワガハイ,ワガハイ",
+                    "は / 助詞,係助詞,*,*,*,*,は,ハ,ワ",
+                    "ネコ / 名詞,一般,*,*,*,*,ネコ,ネコ,ネコ",
+                    "で / 助動詞,*,*,*,特殊・ダ,連用形,だ,デ,デ",
+                    "ある / 助動詞,*,*,*,五段・ラ行アル,基本形,ある,アル,アル",
+                    "。 / 記号,句点,*,*,*,*,。,。,。",
+                    "__EOS__ / null",
+                ),
+            "Taiyaki" to
+                listOf(
+                    "__BOS__ / null",
+                    "Taiyaki / 感動詞,*,*,*,*,*,*",
+                    "__EOS__ / null",
+                ),
+            "Taiyakiは形態素解析エンジンである" to
+                listOf(
+                    "__BOS__ / null",
+                    "Taiyaki / 名詞,一般,*,*,*,*,*",
+                    "は / 助詞,係助詞,*,*,*,*,は,ハ,ワ",
+                    "形態素 / 名詞,一般,*,*,*,*,形態素,ケイタイソ,ケイタイソ",
+                    "解析 / 名詞,サ変接続,*,*,*,*,解析,カイセキ,カイセキ",
+                    "エンジン / 名詞,一般,*,*,*,*,エンジン,エンジン,エンジン",
+                    "で / 助動詞,*,*,*,特殊・ダ,連用形,だ,デ,デ",
+                    "ある / 助動詞,*,*,*,五段・ラ行アル,基本形,ある,アル,アル",
+                    "__EOS__ / null",
+                ),
+        ).forEach { (input, expected) ->
+            println("# $input")
+            val lattice = engine.buildLattice(input)
+            val nodes = lattice.viterbi()
+
+            nodes.forEach {
+                println("  \"" + it.surface + " / " + it.dictRow?.annotations + "\",")
+            }
+
+            assertEquals(
+                expected,
+                nodes.map { it.surface + " / " + it.dictRow?.annotations },
+            )
+        }
+    }
 }
