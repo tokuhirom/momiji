@@ -28,7 +28,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.tokuhirom.kdary:kdary:0.9.1")
+                implementation("io.github.tokuhirom.kdary:kdary:0.9.2")
 
 //                implementation("com.github.ajalt.clikt:clikt:4.4.0")
 
