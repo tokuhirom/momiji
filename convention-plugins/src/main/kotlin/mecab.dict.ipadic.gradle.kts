@@ -33,7 +33,7 @@ open class BuildDictTask : DefaultTask() {
         download()
         val mecabDictDir = extract()
         buildDict(mecabDictDir)
-        val wordEntries = convertFiles(mecabDictDir)
+//        val wordEntries = convertFiles(mecabDictDir)
 //        buildKdary(wordEntries)
 //        copyFiles(mecabDictDir)
     }
