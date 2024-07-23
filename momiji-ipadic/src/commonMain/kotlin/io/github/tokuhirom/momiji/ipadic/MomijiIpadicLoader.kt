@@ -1,13 +1,13 @@
 package io.github.tokuhirom.momiji.ipadic
 
 import io.github.tokuhirom.kdary.KDary
-import io.github.tokuhirom.momiji.dictcsv.DICT_CSV
 import io.github.tokuhirom.momiji.engine.CostManager
 import io.github.tokuhirom.momiji.engine.MomijiEngine
 import io.github.tokuhirom.momiji.engine.src.CharMap
 import io.github.tokuhirom.momiji.engine.src.Dict
 import io.github.tokuhirom.momiji.engine.src.matrix.Matrix
 import io.github.tokuhirom.momiji.ipadic.char.CHAR
+import io.github.tokuhirom.momiji.ipadic.dictcsv.DICT_CSV
 import io.github.tokuhirom.momiji.ipadic.kdary.KDARY_BASE64
 import io.github.tokuhirom.momiji.ipadic.unk.UNK
 import kotlin.io.encoding.Base64

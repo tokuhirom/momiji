@@ -13,7 +13,6 @@ import java.util.Locale
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-
 open class BuildDictTask : DefaultTask() {
     private val url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
     private val tarball = "mecab-ipadic.tar.gz"
@@ -103,7 +102,7 @@ open class BuildDictTask : DefaultTask() {
         writeChunks(
             outputCsv,
             src = lines.joinToString("\n") { it.raw },
-            pkg = "io.github.tokuhirom.momiji.dictcsv",
+            pkg = "io.github.tokuhirom.momiji.ipadic.dictcsv",
             filePrefix = "DictCsv",
             variablePrefix = "DICT_CSV",
         )
@@ -143,26 +142,29 @@ open class BuildDictTask : DefaultTask() {
     ) {
         baseDir.mkdirs()
 
-        val chunks = src.chunked(64 * 1024)
+        // 1024 -> Matrix
+        // 65535 文字が最大っぽい。
+        // https://stackoverflow.com/questions/62098263/kotlin-string-max-length-kotlin-file-with-a-long-string-is-not-compiling
+        val chunks = splitStringByBytes(src)
+
         chunks.forEachIndexed { index, chunk ->
             baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
+                writer.write("@file:Suppress(\"ktlint:standard:max-line-length\")\n\n")
                 writer.write("package $pkg\n\n")
-                writer.write("internal val ${variablePrefix}_$index = \"\"\"${escapeKotlinString(chunk)}\"\"\"\n")
+                writer.write("internal const val ${variablePrefix}_$index = \"\"\"${escapeKotlinString(chunk)}\"\"\"\n")
                 writer.newLine()
             }
         }
 
         baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
             writer.write("package $pkg\n\n")
-            writer.write("val $variablePrefix = listOf(\n")
-            chunks.forEachIndexed { index, _ ->
-                writer.write("    ${variablePrefix}_$index")
-                if (index != chunks.size - 1) {
-                    writer.write(",")
-                }
-                writer.newLine()
-            }
-            writer.write(").joinToString(\"\")\n")
+            writer.write("val $variablePrefix = ")
+            writer.write(
+                List(chunks.size) { index ->
+                    "${variablePrefix}_$index"
+                }.joinToString("+"),
+            )
+            writer.write("\n\n")
         }
     }
 
@@ -193,6 +195,7 @@ open class BuildDictTask : DefaultTask() {
         }
 
         // write matrix.bin
+        // matrix.bin は明らかにバイナリ形式のほうが空間効率が良い。
         run {
             val sourceFile: File = mecabDictDir.toFile().resolve("matrix.bin")
             val baseDir =
@@ -219,4 +222,33 @@ open class BuildDictTask : DefaultTask() {
             .replace("\"", "\\\"")
             .replace("\$", "\${'\$'}")
             .replace("\r", "\\r")
+
+    private fun splitStringByBytes(
+        input: String,
+        maxBytes: Int = 65535,
+    ): List<String> {
+        val charset = Charset.forName("UTF-8")
+        val byteBuffer = input.toByteArray(charset)
+
+        var start = 0
+        val parts = mutableListOf<String>()
+
+        while (start < byteBuffer.size) {
+            var end = start + maxBytes
+            if (end >= byteBuffer.size) {
+                end = byteBuffer.size
+            } else {
+                // UTF-8のマルチバイト文字が途中で切れないように調整
+                while (end > start && (byteBuffer[end].toInt() and 0xC0) == 0x80) {
+                    end--
+                }
+            }
+
+            val part = String(byteBuffer, start, end - start, charset)
+            parts.add(part)
+            start = end
+        }
+
+        return parts
+    }
 }
