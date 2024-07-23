@@ -54,7 +54,7 @@ fun main() {
                 transitionCost,
                 node.dictRow?.cost,
                 node.surface,
-                node.dictRow?.annotations?.joinToString(","),
+                node.dictRow?.annotations,
             ),
         )
     }

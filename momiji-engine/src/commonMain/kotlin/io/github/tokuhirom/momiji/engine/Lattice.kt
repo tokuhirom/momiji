@@ -97,7 +97,7 @@ class Lattice(
         // ノードのエクスポート
         for (i in beginNodes.indices) {
             for (node in beginNodes[i]) {
-                val label = node.surface.replace("\"", "\\\"") + node.dictRow?.annotations?.joinToString(",")
+                val label = node.surface.replace("\"", "\\\"") + node.dictRow?.annotations
                 sb.append("node_${node.hashCode().toUInt()} [label=\"$label (${node.dictRow?.cost ?: "?"})\"];\n")
             }
         }

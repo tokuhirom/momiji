@@ -28,7 +28,7 @@ data class DictRow(
     val leftId: Int, // 左文脈ID
     val rightId: Int, // 右文脈ID
     val cost: Int, // 単語コスト
-    val annotations: List<String>, // その他のカラム
+    val annotations: String, // その他のカラム
 ) {
     // return as a csv format
     override fun toString(): String =
@@ -37,18 +37,18 @@ data class DictRow(
             leftId,
             rightId,
             cost,
-            annotations.joinToString(","),
+            annotations,
         ).joinToString(",")
 
     companion object {
         fun parseLine(line: String): DictRow {
-            val columns = line.split(",")
+            val columns = line.split(",", limit = 5) // 最初の5個まで分割
             return DictRow(
                 surface = columns[0],
                 leftId = columns[1].toInt(),
                 rightId = columns[2].toInt(),
                 cost = columns[3].toInt(),
-                annotations = columns.drop(4),
+                annotations = columns[4],
             )
         }
     }
