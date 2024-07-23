@@ -2,6 +2,9 @@ package io.github.tokuhirom.momiji.engine
 
 import io.github.tokuhirom.momiji.engine.src.DictRow
 
+/**
+ * Node in the lattice.
+ */
 sealed class Node(
     open val surface: String,
     open val length: Int,
@@ -11,10 +14,23 @@ sealed class Node(
     // 最小コスト経路(直近のみ保存)
     open var minPrev: Node? = null,
 ) {
-    class BOS : Node("__BOS__", 0, null)
+    /**
+     * BOS node
+     */
+    class BOS : Node("__BOS__", 0, null) {
+        override fun toString(): String = "Node.BOS()"
+    }
 
-    class EOS : Node("__EOS__", 0, null)
+    /**
+     * EOS node
+     */
+    class EOS : Node("__EOS__", 0, null) {
+        override fun toString(): String = "Node.EOS()"
+    }
 
+    /**
+     * Word node
+     */
     data class Word(
         override val surface: String,
         override val length: Int,

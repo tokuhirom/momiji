@@ -5,7 +5,7 @@ import io.github.tokuhirom.momiji.engine.CostManager
 import io.github.tokuhirom.momiji.engine.LatticeBuilder
 import io.github.tokuhirom.momiji.engine.src.CharMap
 import io.github.tokuhirom.momiji.engine.src.Dict
-import io.github.tokuhirom.momiji.engine.src.matrix.Matrix
+import io.github.tokuhirom.momiji.engine.src.Matrix
 import io.github.tokuhirom.momiji.ipadic.char.CHAR
 import io.github.tokuhirom.momiji.ipadic.dictcsv.DICT_CSV
 import io.github.tokuhirom.momiji.ipadic.kdary.KDARY_BASE64
@@ -14,28 +14,53 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class MomijiIpadicLoader {
-    @OptIn(ExperimentalEncodingApi::class)
+    /**
+     * Build the LatticeBuilder object from the bundled ipadic.
+     */
     fun load(): LatticeBuilder {
-        val bytes = Base64.decode(KDARY_BASE64)
-        val kdary = KDary.fromByteArray(bytes)
-
-        val dict = Dict.parse(DICT_CSV)
-
+        val kdary = loadKdary()
+        val dict = loadDict()
         val matrix = loadMatrix()
-
-        val charMap = CharMap.parseText(CHAR)
-        val unknown = Dict.parse(UNK)
+        val charMap = loadCharMap()
+        val unknown = loadUnknown()
 
         val costManager = CostManager(matrix)
-
         return LatticeBuilder(kdary, dict, costManager, charMap, unknown)
     }
 
+    /**
+     * Load the KDary object.
+     * It's used for common prefix search.
+     *
+     * @return The KDary object.
+     */
+    @OptIn(ExperimentalEncodingApi::class)
+    fun loadKdary(): KDary = KDary.fromByteArray(Base64.decode(KDARY_BASE64))
+
+    /**
+     * Load the dictionary.
+     */
+    fun loadDict(): Dict = Dict.parse(DICT_CSV)
+
+    /**
+     * Load the matrix of the transition cost.
+     */
     @OptIn(ExperimentalEncodingApi::class)
     fun loadMatrix(): Matrix = Matrix.parseBinary(Base64.decode(io.github.tokuhirom.momiji.ipadic.matrix.Matrix))
 
+    /**
+     * Load the character map.
+     */
     fun loadCharMap(): CharMap = CharMap.parseText(CHAR)
+
+    /**
+     * Load the unknown word dictionary.
+     */
+    fun loadUnknown(): Dict = Dict.parse(UNK)
 }
+
+/*
+Sample code:
 
 fun main() {
     val loader = MomijiIpadicLoader()
@@ -59,3 +84,4 @@ fun main() {
         )
     }
 }
+*/
