@@ -145,13 +145,18 @@ open class BuildDictTask : DefaultTask() {
         // 1024 -> Matrix
         // 65535 文字が最大っぽい。
         // https://stackoverflow.com/questions/62098263/kotlin-string-max-length-kotlin-file-with-a-long-string-is-not-compiling
-        val chunks = splitStringByBytes(src)
+        val groups = splitStringByBytes(src)
+        val chunkGroup = groups.chunked(10)
 
-        chunks.forEachIndexed { index, chunk ->
+        chunkGroup.forEachIndexed { index, chunk ->
             baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
                 writer.write("@file:Suppress(\"ktlint:standard:max-line-length\")\n\n")
                 writer.write("package $pkg\n\n")
-                writer.write("internal const val ${variablePrefix}_$index = \"\"\"${escapeKotlinString(chunk)}\"\"\"\n")
+                writer.write("internal val ${variablePrefix}_$index = listOf(\n")
+                chunk.forEach {
+                    writer.write("    \"\"\"${escapeKotlinString(it)}\"\"\",\n")
+                }
+                writer.write(").joinToString(\"\")\n")
                 writer.newLine()
             }
         }
@@ -160,7 +165,7 @@ open class BuildDictTask : DefaultTask() {
             writer.write("package $pkg\n\n")
             writer.write("val $variablePrefix = ")
             writer.write(
-                List(chunks.size) { index ->
+                List(chunkGroup.size) { index ->
                     "${variablePrefix}_$index"
                 }.joinToString("+"),
             )
