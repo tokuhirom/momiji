@@ -47,4 +47,4 @@ jobs:
       - name: build(Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          ./gradlew :momiji-ipadic:buildDict build
+          ./gradlew --info :momiji-ipadic:buildDict build
