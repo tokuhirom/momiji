@@ -45,7 +45,7 @@ class CharMap(
     override fun toString(): String = "CharMap(categories=$categories, ranges=$ranges)"
 
     companion object {
-        fun parse(src: String): CharMap {
+        fun parseText(src: String): CharMap {
             val categories = mutableListOf<CharCategory>()
             val codepoints = mutableListOf<CodepointRange>()
 

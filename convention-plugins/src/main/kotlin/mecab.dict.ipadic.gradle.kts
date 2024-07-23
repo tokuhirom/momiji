@@ -168,7 +168,8 @@ open class BuildDictTask : DefaultTask() {
 
     @OptIn(ExperimentalEncodingApi::class)
     private fun copyFiles(mecabDictDir: Path) {
-        listOf("matrix.def", "char.def", "unk.def").forEach { file ->
+        // char.def は text 形式のほうが小さいので text 形式を採用
+        listOf("char.def", "unk.def").forEach { file ->
             val baseName = file.replace(".def", "")
             val sourceFile = File(mecabDictDir.toFile(), file)
             val baseDir =

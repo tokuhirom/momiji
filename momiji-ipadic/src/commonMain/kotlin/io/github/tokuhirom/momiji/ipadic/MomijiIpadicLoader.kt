@@ -23,7 +23,7 @@ class MomijiIpadicLoader {
 
         val matrix = loadMatrix()
 
-        val charMap = CharMap.parse(CHAR)
+        val charMap = CharMap.parseText(CHAR)
         val unknown = Dict.parse(UNK)
 
         val costManager = CostManager(matrix)
