@@ -28,6 +28,9 @@ class Lattice(
         beginNodes[sentence.length].add(Node.EOS())
     }
 
+    /**
+     * Insert a new node to the lattice.
+     */
     internal fun insert(
         begin: Int,
         end: Int,

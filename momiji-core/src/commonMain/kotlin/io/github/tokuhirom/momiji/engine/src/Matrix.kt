@@ -1,4 +1,4 @@
-package io.github.tokuhirom.momiji.engine.src.matrix
+package io.github.tokuhirom.momiji.engine.src
 
 /**
  * 連接コストのマトリクス

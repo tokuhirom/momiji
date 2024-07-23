@@ -20,6 +20,9 @@ data class CodepointRange(
     val compatibleCategories: List<String> = listOf(),
 )
 
+/**
+ * CharMap is a map of character categories and codepoint ranges.
+ */
 class CharMap(
     charCategories: List<CharCategory>,
     codepointRanges: List<CodepointRange>,
@@ -45,6 +48,12 @@ class CharMap(
     override fun toString(): String = "CharMap(categories=$categories, ranges=$ranges)"
 
     companion object {
+        /**
+         * Parse a text representation of a character map.
+         * It's the char.def in mecab's dictionary.
+         *
+         * @param src The text representation of the character map.
+         */
         fun parseText(src: String): CharMap {
             val categories = mutableListOf<CharCategory>()
             val codepoints = mutableListOf<CodepointRange>()

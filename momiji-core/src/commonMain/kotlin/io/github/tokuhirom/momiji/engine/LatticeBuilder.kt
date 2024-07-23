@@ -6,6 +6,15 @@ import io.github.tokuhirom.momiji.engine.src.CharMap
 import io.github.tokuhirom.momiji.engine.src.Dict
 import kotlin.math.max
 
+/**
+ * LatticeBuilder builds a lattice from a given input string.
+ *
+ * @property kdary The KDary object to use for common prefix search.
+ * @property dict The dictionary to use for known words.
+ * @property costManager The cost manager to use for calculating costs.
+ * @property charMap The character map to use for character categorization.
+ * @property unknown The dictionary to use for unknown words.
+ */
 data class LatticeBuilder(
     private val kdary: KDary,
     private val dict: Dict,

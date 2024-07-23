@@ -94,4 +94,21 @@ class MomijiIpadicLoaderTest {
             )
         }
     }
+
+    @Test
+    fun loadDict() {
+        val loader = MomijiIpadicLoader()
+        val dict = loader.loadDict()
+        dict["東京"].forEach {
+            assertEquals("東京", it.surface)
+            assertEquals("名詞,固有名詞,地域,一般,*,*,東京,トウキョウ,トーキョー", it.annotations)
+        }
+    }
+
+    @Test
+    fun loadUnknown() {
+        val loader = MomijiIpadicLoader()
+        val unknown = loader.loadUnknown()
+        assertEquals(7, unknown["HIRAGANA"].size)
+    }
 }

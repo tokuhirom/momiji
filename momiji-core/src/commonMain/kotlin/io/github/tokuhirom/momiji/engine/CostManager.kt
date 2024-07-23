@@ -1,17 +1,23 @@
 package io.github.tokuhirom.momiji.engine
 
-import io.github.tokuhirom.momiji.engine.src.matrix.Matrix
+import io.github.tokuhirom.momiji.engine.src.Matrix
 
+/**
+ * Cost manager
+ */
 data class CostManager(
     private val matrix: Matrix,
 ) {
     /**
-     * 生起コスト
+     * Get the emission cost
      */
     fun getEmissionCost(node: Node): Int = node.dictRow?.cost ?: 0
 
     /**
-     * 連接コスト
+     * Get the transition cost
+     *
+     * @param left the left node
+     * @param right the right node
      */
     fun getTransitionCost(
         left: Node,
