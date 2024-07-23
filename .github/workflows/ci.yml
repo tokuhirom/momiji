@@ -28,24 +28,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-#      - name: Build and Test
-#        run: |
-#          ./gradlew build
-#          if [ "${{ matrix.target }}" = "jvm" ]; then
-#            ./gradlew jvmTest
-#          elif [ "${{ matrix.target }}" = "js" ]; then
-#            ./gradlew jsTest
-#          elif [ "${{ matrix.target }}" = "macosArm64" ]; then
-#            ./gradlew macosArm64Test
-#          fi
-
       - name: build(macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          ./gradlew build
+          ./gradlew :momiji-ipadic:buildDict build
 
       - name: build(Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          ./gradlew build
-
+          ./gradlew :momiji-ipadic:buildDict build
