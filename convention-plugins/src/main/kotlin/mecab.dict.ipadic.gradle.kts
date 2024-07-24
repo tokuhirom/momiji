@@ -37,6 +37,7 @@ open class BuildDictTask : DefaultTask() {
         val wordEntries = convertFiles(mecabDictDir)
         buildKdary(wordEntries)
         copyFiles(mecabDictDir)
+        buildMatrix(mecabDictDir)
     }
 
     private fun download() {
@@ -110,7 +111,6 @@ open class BuildDictTask : DefaultTask() {
         writeChunks(
             outputCsv,
             src = lines.joinToString("\n") { it.raw },
-            pkg = "io.github.tokuhirom.momiji.ipadic.dictcsv",
             filePrefix = "DictCsv",
             variablePrefix = "DICT_CSV",
         )
@@ -133,7 +133,6 @@ open class BuildDictTask : DefaultTask() {
         writeChunks(
             baseDir,
             src,
-            pkg = "io.github.tokuhirom.momiji.ipadic.kdary",
             filePrefix = "KDary",
             variablePrefix = "KDARY_BASE64",
         )
@@ -144,13 +143,12 @@ open class BuildDictTask : DefaultTask() {
     private fun writeChunks(
         baseDir: File,
         src: String,
-        pkg: String,
         filePrefix: String,
+        pkg: String = "io.github.tokuhirom.momiji.ipadic.${filePrefix.lowercase()}",
         variablePrefix: String,
     ) {
         baseDir.mkdirs()
 
-        // 1024 -> Matrix
         // 65535 文字が最大っぽい。
         // https://stackoverflow.com/questions/62098263/kotlin-string-max-length-kotlin-file-with-a-long-string-is-not-compiling
         val groups = splitStringByBytes(src)
@@ -181,7 +179,6 @@ open class BuildDictTask : DefaultTask() {
         }
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     private fun copyFiles(mecabDictDir: Path) {
         // char.def は text 形式のほうが小さいので text 形式を採用
         listOf("char.def", "unk.def").forEach { file ->
@@ -206,27 +203,28 @@ open class BuildDictTask : DefaultTask() {
             }
             println("Copied $file")
         }
+    }
 
-        // write matrix.bin
-        // matrix.bin は明らかにバイナリ形式のほうが空間効率が良い。
-        run {
-            val sourceFile: File = mecabDictDir.toFile().resolve("matrix.bin")
-            val baseDir =
-                project.layout.projectDirectory
-                    .asFile
-                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/matrix")
+    // write matrix.bin
+    // matrix.bin は明らかにバイナリ形式のほうが空間効率が良い。
+    private fun buildMatrix(mecabDictDir: Path) {
+        val sourceFile = mecabDictDir.toFile().resolve("matrix.bin")
+        val baseDir =
+            project.layout.projectDirectory
+                .asFile
+                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/matrix")
 
-            val bytes = sourceFile.readBytes()
-            val base64 = Base64.encode(bytes)
-            writeChunks(
-                baseDir,
-                src = base64,
-                pkg = "io.github.tokuhirom.momiji.ipadic.matrix",
-                filePrefix = "Matrix",
-                variablePrefix = "Matrix",
-            )
-            println("Copied matrix.bin")
-        }
+        val bytes = sourceFile.readBytes()
+
+        @OptIn(ExperimentalEncodingApi::class)
+        val base64 = Base64.encode(bytes)
+        writeChunks(
+            baseDir,
+            src = base64,
+            filePrefix = "Matrix",
+            variablePrefix = "Matrix",
+        )
+        println("Copied matrix.bin")
     }
 
     private fun escapeKotlinString(src: String): String =
