@@ -1,6 +1,6 @@
-package io.github.tokuhirom.momiji.core.src
+package io.github.tokuhirom.momiji.core.dict
 
-import io.github.tokuhirom.momiji.core.src.DictRow.Companion.parseLine
+import io.github.tokuhirom.momiji.core.dict.DictRow.Companion.parseLine
 
 data class Dict(
     private val data: Map<String, List<DictRow>>,

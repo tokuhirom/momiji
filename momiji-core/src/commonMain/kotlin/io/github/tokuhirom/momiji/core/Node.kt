@@ -1,6 +1,6 @@
 package io.github.tokuhirom.momiji.core
 
-import io.github.tokuhirom.momiji.core.src.DictRow
+import io.github.tokuhirom.momiji.core.dict.DictRow
 
 /**
  * Node in the lattice.

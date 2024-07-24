@@ -2,7 +2,7 @@ package io.github.tokuhirom.kdary.samples.momiji.engine
 
 import io.github.tokuhirom.momiji.core.CostManager
 import io.github.tokuhirom.momiji.core.Node
-import io.github.tokuhirom.momiji.core.src.DictRow
+import io.github.tokuhirom.momiji.core.dict.DictRow
 
 /**
  * Every index should be the character index.

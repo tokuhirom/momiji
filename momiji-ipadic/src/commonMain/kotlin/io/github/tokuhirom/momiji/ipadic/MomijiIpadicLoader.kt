@@ -4,8 +4,8 @@ import io.github.tokuhirom.kdary.KDary
 import io.github.tokuhirom.momiji.core.CostManager
 import io.github.tokuhirom.momiji.core.LatticeBuilder
 import io.github.tokuhirom.momiji.core.character.CharMap
-import io.github.tokuhirom.momiji.core.src.Dict
-import io.github.tokuhirom.momiji.core.src.Matrix
+import io.github.tokuhirom.momiji.core.dict.Dict
+import io.github.tokuhirom.momiji.core.matrix.Matrix
 import io.github.tokuhirom.momiji.core.unknown.DefaultUnknownWordDetector
 import io.github.tokuhirom.momiji.ipadic.char.CHAR
 import io.github.tokuhirom.momiji.ipadic.dictcsv.DICT_CSV

@@ -2,8 +2,8 @@ package io.github.tokuhirom.momiji.binarydict
 
 import io.github.tokuhirom.momiji.core.LatticeBuilder
 import io.github.tokuhirom.momiji.core.character.CharMap
-import io.github.tokuhirom.momiji.core.src.Dict
-import io.github.tokuhirom.momiji.core.src.Matrix
+import io.github.tokuhirom.momiji.core.dict.Dict
+import io.github.tokuhirom.momiji.core.matrix.Matrix
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
