@@ -8,7 +8,10 @@ data class Dict(
     val size
         get() = data.size
 
-    operator fun get(s: String): List<DictRow> = data.getOrDefault(s, emptyList())
+    operator fun get(s: String): List<DictRow> =
+        data.getOrElse(s) {
+            emptyList()
+        }
 
     companion object {
         /**

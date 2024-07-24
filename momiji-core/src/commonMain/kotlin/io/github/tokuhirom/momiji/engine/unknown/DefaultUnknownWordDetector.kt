@@ -4,7 +4,6 @@ import io.github.tokuhirom.kdary.result.CommonPrefixSearchResult
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
 import io.github.tokuhirom.momiji.engine.src.CharMap
 import io.github.tokuhirom.momiji.engine.src.Dict
-import jdk.internal.org.jline.utils.Colors.s
 import kotlin.math.min
 
 /**
@@ -48,7 +47,15 @@ class DefaultUnknownWordDetector(
                         )
                     }
 
-                if (!results.map { String(src.substring(i).toByteArray().copyOfRange(0, it.length)) }.contains(s)) {
+                if (!results
+                        .map {
+                            src
+                                .substring(i)
+                                .encodeToByteArray()
+                                .copyOfRange(0, it.length)
+                                .decodeToString()
+                        }.contains(s)
+                ) {
                     unknown[charCategory.name].forEach { wordEntry ->
                         lattice.insert(i, i + s.length, wordEntry)
                     }

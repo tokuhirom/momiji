@@ -16,18 +16,18 @@ kotlin {
     }
 
     jvm()
-//    js {
-//        nodejs {
-//            testTask {
-//                useMocha {
-//                    timeout = "10000" // 10 seconds timeout
-//                }
-//            }
-//        }
-//    }
-//    macosArm64()
+    js {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "10000" // 10 seconds timeout
+                }
+            }
+        }
+    }
+    macosArm64()
 //    macosX64()
-//    linuxX64()
+    linuxX64()
 
     sourceSets {
         val commonMain by getting {
