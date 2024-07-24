@@ -11,7 +11,7 @@ MeCab の辞書を利用可能です。工藤 拓氏の [実践・自然言語�
 - momiji-core: 形態素解析エンジンのパッケージ
 - momiji-ipadic: mecab-ipadic の辞書のパッケージ(kotlin コードに変換してバンドルしています)
 
-## 推奨辞書
+## 辞書
 
 mecab-ipadic の辞書を利用することを推奨します。辞書のバンドルは momiji-ipadic artifact に含まれています。
 
