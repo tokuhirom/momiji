@@ -46,7 +46,10 @@ kotlin {
     }
 }
 
-tasks.register<BuildDictTask>("buildDict")
+tasks.register<BuildDictTask>("buildDict") {
+    url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
+    dicType = "ipadic"
+}
 
 // Example task dependency
 // tasks.getByName("build").dependsOn("buildDict")
