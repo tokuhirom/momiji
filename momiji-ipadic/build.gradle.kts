@@ -35,7 +35,7 @@ kotlin {
 
             dependencies {
                 implementation(project(":momiji-core"))
-                implementation("io.github.tokuhirom.kdary:kdary:0.9.2")
+                implementation("io.github.tokuhirom.kdary:kdary:0.9.3")
             }
         }
         val commonTest by getting {
