@@ -10,7 +10,7 @@ data class CharCategory(
     val name: String,
     val alwaysInvoke: Int,
     val grouping: Int,
-    val length: Int,
+    val length: Int? = null,
 )
 
 data class CodepointRange(
@@ -61,7 +61,19 @@ class CharMap(
                 val categoryMatch = Regex("""^([A-Z]+)\s+(\d)\s+(\d)\s+(\d+)$""").matchEntire(trimmedLine)
                 if (categoryMatch != null) {
                     val (name, timing, grouping, length) = categoryMatch.destructured
-                    categories.add(CharCategory(name, timing.toInt(), grouping.toInt(), length.toInt()))
+                    categories.add(
+                        CharCategory(
+                            name,
+                            timing.toInt(),
+                            grouping.toInt(),
+                            length.toInt().let {
+                                when (it) {
+                                    0 -> null
+                                    else -> length.toInt()
+                                }
+                            },
+                        ),
+                    )
                     return@forEach
                 }
 
