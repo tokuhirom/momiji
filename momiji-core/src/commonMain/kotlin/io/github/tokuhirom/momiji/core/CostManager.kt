@@ -1,6 +1,6 @@
-package io.github.tokuhirom.momiji.engine
+package io.github.tokuhirom.momiji.core
 
-import io.github.tokuhirom.momiji.engine.src.Matrix
+import io.github.tokuhirom.momiji.core.src.Matrix
 
 /**
  * Cost manager

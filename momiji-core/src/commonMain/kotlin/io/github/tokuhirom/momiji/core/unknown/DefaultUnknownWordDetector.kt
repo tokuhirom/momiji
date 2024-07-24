@@ -1,9 +1,9 @@
-package io.github.tokuhirom.momiji.engine.unknown
+package io.github.tokuhirom.momiji.core.unknown
 
 import io.github.tokuhirom.kdary.result.CommonPrefixSearchResult
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
-import io.github.tokuhirom.momiji.engine.src.CharMap
-import io.github.tokuhirom.momiji.engine.src.Dict
+import io.github.tokuhirom.momiji.core.src.CharMap
+import io.github.tokuhirom.momiji.core.src.Dict
 import kotlin.math.min
 
 /**

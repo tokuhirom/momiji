@@ -1,4 +1,4 @@
-package io.github.tokuhirom.momiji.engine.unknown
+package io.github.tokuhirom.momiji.core.unknown
 
 import io.github.tokuhirom.kdary.result.CommonPrefixSearchResult
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice

@@ -1,12 +1,12 @@
 package io.github.tokuhirom.momiji.ipadic
 
 import io.github.tokuhirom.kdary.KDary
-import io.github.tokuhirom.momiji.engine.CostManager
-import io.github.tokuhirom.momiji.engine.LatticeBuilder
-import io.github.tokuhirom.momiji.engine.src.CharMap
-import io.github.tokuhirom.momiji.engine.src.Dict
-import io.github.tokuhirom.momiji.engine.src.Matrix
-import io.github.tokuhirom.momiji.engine.unknown.DefaultUnknownWordDetector
+import io.github.tokuhirom.momiji.core.CostManager
+import io.github.tokuhirom.momiji.core.LatticeBuilder
+import io.github.tokuhirom.momiji.core.src.CharMap
+import io.github.tokuhirom.momiji.core.src.Dict
+import io.github.tokuhirom.momiji.core.src.Matrix
+import io.github.tokuhirom.momiji.core.unknown.DefaultUnknownWordDetector
 import io.github.tokuhirom.momiji.ipadic.char.CHAR
 import io.github.tokuhirom.momiji.ipadic.dictcsv.DICT_CSV
 import io.github.tokuhirom.momiji.ipadic.kdary.KDARY_BASE64

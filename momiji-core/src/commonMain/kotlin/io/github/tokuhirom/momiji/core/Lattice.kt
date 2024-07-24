@@ -1,8 +1,8 @@
 package io.github.tokuhirom.kdary.samples.momiji.engine
 
-import io.github.tokuhirom.momiji.engine.CostManager
-import io.github.tokuhirom.momiji.engine.Node
-import io.github.tokuhirom.momiji.engine.src.DictRow
+import io.github.tokuhirom.momiji.core.CostManager
+import io.github.tokuhirom.momiji.core.Node
+import io.github.tokuhirom.momiji.core.src.DictRow
 
 /**
  * Every index should be the character index.

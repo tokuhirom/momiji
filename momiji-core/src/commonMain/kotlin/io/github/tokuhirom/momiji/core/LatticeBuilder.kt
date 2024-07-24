@@ -1,9 +1,9 @@
-package io.github.tokuhirom.momiji.engine
+package io.github.tokuhirom.momiji.core
 
 import io.github.tokuhirom.kdary.KDary
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
-import io.github.tokuhirom.momiji.engine.src.Dict
-import io.github.tokuhirom.momiji.engine.unknown.UnknownWordDetector
+import io.github.tokuhirom.momiji.core.src.Dict
+import io.github.tokuhirom.momiji.core.unknown.UnknownWordDetector
 
 /**
  * LatticeBuilder builds a lattice from a given input string.

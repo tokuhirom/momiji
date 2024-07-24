@@ -1,4 +1,4 @@
-package io.github.tokuhirom.momiji.engine.src
+package io.github.tokuhirom.momiji.core.src
 
 /**
  * - CATEGORY_NAME: Name of category. you have to define DEFAULT class.
@@ -19,6 +19,18 @@ data class CodepointRange(
     val defaultCategory: String,
     val compatibleCategories: List<String> = listOf(),
 )
+
+class CharMap2(
+    private val categories: List<String>,
+    private val charInfos: List<CharInfo>,
+) {
+    fun resolve(char: Char): CharInfo {
+        println(charInfos[char.code].defaultType)
+        return charInfos[char.code]
+    }
+
+    fun categoryName(index: Int) = categories[index]
+}
 
 /**
  * CharMap is a map of character categories and codepoint ranges.
@@ -92,6 +104,39 @@ class CharMap(
             return CharMap(categories, codepoint2category)
         }
 
+        /**
+         * Parse the binary format of the char.bin file.
+         *
+         * @see <a href="https://github.com/taku910/mecab/blob/master/mecab/src/char_property.cpp">char_property.cpp</a>
+         */
+        fun parseBinary(byteArray: ByteArray): CharMap2 {
+            // get the size of the categories.
+            // it's `unsigned int`. it means unsigned 32 bit.
+            val size =
+                (
+                    byteArray[0].toUInt() +
+                        (byteArray[1].toUInt() shl 8) +
+                        (byteArray[2].toUInt() shl 16) +
+                        (byteArray[3].toUInt() shl 24)
+                ).toInt()
+
+            val categories =
+                (0 until size).map { i ->
+                    val buf = byteArray.copyOfRange(4 + 32 * i, 4 + 32 * (i + 1))
+                    // buf の \0 までの間を String として取り出す
+                    val p: ByteArray = buf.filter { it != 0.toByte() }.toByteArray()
+                    p.decodeToString()
+                }
+
+            val offset = 4 + 32 * size
+            val charInfos =
+                (0 until 0xFFFF - 1)
+                    .map {
+                        CharInfo.fromByteArray(byteArray, offset + it * 4)
+                    }.toList()
+            return CharMap2(categories, charInfos)
+        }
+
         private fun buildArray(codepointRanges: List<CodepointRange>): Array<CodepointRange?> {
             val categoryArray: Array<CodepointRange?> = arrayOfNulls(65536)
             codepointRanges.forEach { range ->
@@ -101,5 +146,71 @@ class CharMap(
             }
             return categoryArray
         }
+    }
+}
+
+data class CharInfo(
+    val type: Int,
+    val defaultType: Int,
+    val length: Int,
+    val group: Boolean,
+    val invoke: Boolean,
+) {
+    companion object {
+        fun fromByteArray(
+            byteArray: ByteArray,
+            offset: Int,
+        ): CharInfo {
+            // 18 bits = 8 + 8 + 2
+            val type = type(byteArray, offset)
+            // 8 bits = 6 + 2
+            val defaultType = defaultType(byteArray, offset)
+            val length = length(byteArray, offset)
+            val group = group(byteArray, offset)
+            val invoke = invoke(byteArray, offset)
+            return CharInfo(type, defaultType, length, group, invoke)
+        }
+
+        private fun type(
+            byteArray: ByteArray,
+            offset: Int,
+        ): Int =
+            (
+                byteArray[0 + offset].toUInt() or
+                    (byteArray[1 + offset].toUInt() shl 8) or
+                    ((byteArray[2 + offset].toUInt() and 0x03u) shl 16)
+            ).toInt()
+
+        private fun defaultType(
+            byteArray: ByteArray,
+            offset: Int,
+        ): Int =
+            (
+                (byteArray[2 + offset].toUInt() shr 2) or
+                    ((byteArray[3 + offset].toUInt() and 0x03u) shl 6)
+            ).toInt()
+
+        private fun length(
+            byteArray: ByteArray,
+            offset: Int,
+        ): Int =
+            (
+                (byteArray[3 + offset].toUInt() shr 2) and 0x0Fu
+            ).toInt()
+
+        private fun group(
+            byteArray: ByteArray,
+            offset: Int,
+        ): Boolean =
+            (
+                (byteArray[3 + offset].toUInt() shr 6) and 0x01u
+            ) != 0u
+
+        private fun invoke(
+            byteArray: ByteArray,
+            offset: Int,
+        ) = (
+            (byteArray[3 + offset].toUInt() shr 7) and 0x01u
+        ) != 0u
     }
 }
