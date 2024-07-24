@@ -3,7 +3,7 @@ package io.github.tokuhirom.momiji.ipadic
 import io.github.tokuhirom.kdary.KDary
 import io.github.tokuhirom.momiji.core.CostManager
 import io.github.tokuhirom.momiji.core.LatticeBuilder
-import io.github.tokuhirom.momiji.core.src.CharMap
+import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.src.Dict
 import io.github.tokuhirom.momiji.core.src.Matrix
 import io.github.tokuhirom.momiji.core.unknown.DefaultUnknownWordDetector

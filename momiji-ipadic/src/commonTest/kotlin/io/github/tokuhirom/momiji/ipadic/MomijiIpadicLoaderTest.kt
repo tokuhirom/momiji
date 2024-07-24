@@ -33,10 +33,10 @@ class MomijiIpadicLoaderTest {
     fun testLoadCharMap() {
         val loader = MomijiIpadicLoader()
         val charMap = loader.loadCharMap()
-        assertEquals("KANJINUMERIC", charMap.resolve('一')?.name)
-        assertEquals("KANJINUMERIC", charMap.resolve('億')?.name)
-        assertEquals("KANJI", charMap.resolve('愛')?.name)
-        assertEquals("SYMBOL", charMap.resolve('&')?.name)
+        assertEquals("KANJINUMERIC", charMap.categoryName(charMap.resolve('一').defaultType))
+        assertEquals("KANJINUMERIC", charMap.categoryName(charMap.resolve('億').defaultType))
+        assertEquals("KANJI", charMap.categoryName(charMap.resolve('愛').defaultType))
+        assertEquals("SYMBOL", charMap.categoryName(charMap.resolve('&').defaultType))
     }
 
     @Test

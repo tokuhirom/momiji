@@ -2,7 +2,7 @@ package io.github.tokuhirom.momiji.core.unknown
 
 import io.github.tokuhirom.kdary.result.CommonPrefixSearchResult
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
-import io.github.tokuhirom.momiji.core.src.CharMap
+import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.src.Dict
 import kotlin.math.min
 
@@ -20,21 +20,21 @@ class DefaultUnknownWordDetector(
         lattice: Lattice,
     ): Boolean {
         var hasSingleWord = false
-        charMap.resolve(src[i])?.let { charCategory ->
-            if (charCategory.alwaysInvoke == 1 || results.isEmpty()) {
+        charMap.resolve(src[i]).let { charInfo ->
+            if (charInfo.invoke || results.isEmpty()) {
                 val s =
-                    if (charCategory.grouping == 1) {
+                    if (charInfo.group) {
                         // make a new word by grouping the same character category
                         val m =
-                            if (charCategory.length == null) {
+                            if (charInfo.length == 0) {
                                 src.length - i
                             } else {
-                                min(src.length - i, charCategory.length)
+                                min(src.length - i, charInfo.length)
                             }
                         val last =
                             (0 until m).last {
                                 val prevCharCategory = charMap.resolve(src[i + it])
-                                prevCharCategory == charCategory
+                                prevCharCategory == charInfo
                             }
                         src.substring(
                             i,
@@ -56,7 +56,8 @@ class DefaultUnknownWordDetector(
                                 .decodeToString()
                         }.contains(s)
                 ) {
-                    unknown[charCategory.name].forEach { wordEntry ->
+                    val category = charMap.categoryName(charInfo.defaultType)
+                    unknown[category].forEach { wordEntry ->
                         lattice.insert(i, i + s.length, wordEntry)
                     }
                     if (s.length == 1) {

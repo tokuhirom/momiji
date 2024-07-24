@@ -1,7 +1,7 @@
 package io.github.tokuhirom.momiji.binarydict
 
 import io.github.tokuhirom.momiji.core.LatticeBuilder
-import io.github.tokuhirom.momiji.core.src.CharMap
+import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.src.Dict
 import io.github.tokuhirom.momiji.core.src.Matrix
 import okio.FileSystem

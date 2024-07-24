@@ -1,4 +1,4 @@
-package io.github.tokuhirom.momiji.core.src
+package io.github.tokuhirom.momiji.core.character
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -158,6 +158,7 @@ CYRILLIC       1 1 0
 # END OF TABLE
                 """.trimIndent(),
             )
-        assertEquals("ALPHA", charmap.resolve('A')?.name)
+
+        assertEquals("ALPHA", charmap.categoryName(charmap.resolve('A').defaultType))
     }
 }
