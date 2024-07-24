@@ -12,15 +12,15 @@ kotlin {
     }
 
     jvm()
-//    js {
-//        nodejs {
-//            testTask {
-//                useMocha {
-//                    timeout = "10000" // 10 seconds timeout
-//                }
-//            }
-//        }
-//    }
+    js {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "10000" // 10 seconds timeout
+                }
+            }
+        }
+    }
 //    macosArm64()
 //    macosX64()
 //    linuxX64()

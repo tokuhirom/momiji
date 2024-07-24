@@ -23,7 +23,7 @@ data class LatticeBuilder(
         val lattice = Lattice(src, costManager)
 
         for (i in src.indices) {
-            val bytes = src.substring(i).toByteArray(Charsets.UTF_8)
+            val bytes = src.substring(i).encodeToByteArray()
             val results = kdary.commonPrefixSearch(bytes)
 
             var hasSingleWord = false
