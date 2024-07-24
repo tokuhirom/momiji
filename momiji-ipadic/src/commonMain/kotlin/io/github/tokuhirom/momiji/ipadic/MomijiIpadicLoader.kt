@@ -6,6 +6,7 @@ import io.github.tokuhirom.momiji.engine.LatticeBuilder
 import io.github.tokuhirom.momiji.engine.src.CharMap
 import io.github.tokuhirom.momiji.engine.src.Dict
 import io.github.tokuhirom.momiji.engine.src.Matrix
+import io.github.tokuhirom.momiji.engine.unknown.DefaultUnknownWordDetector
 import io.github.tokuhirom.momiji.ipadic.char.CHAR
 import io.github.tokuhirom.momiji.ipadic.dictcsv.DICT_CSV
 import io.github.tokuhirom.momiji.ipadic.kdary.KDARY_BASE64
@@ -25,7 +26,8 @@ class MomijiIpadicLoader {
         val unknown = loadUnknown()
 
         val costManager = CostManager(matrix)
-        return LatticeBuilder(kdary, dict, costManager, charMap, unknown)
+        val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
+        return LatticeBuilder(kdary, dict, costManager, unknownWordDetector)
     }
 
     /**
