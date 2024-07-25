@@ -42,7 +42,7 @@ class MomijiIpadicLoader {
     /**
      * Load the dictionary.
      */
-    fun loadDict(): Dict = Dict.parse(DICT_CSV)
+    fun loadDict(): Dict = Dict.parseText(DICT_CSV)
 
     /**
      * Load the matrix of the transition cost.
@@ -58,7 +58,7 @@ class MomijiIpadicLoader {
     /**
      * Load the unknown word dictionary.
      */
-    fun loadUnknown(): Dict = Dict.parse(UNK)
+    fun loadUnknown(): Dict = Dict.parseText(UNK)
 }
 
 /*
