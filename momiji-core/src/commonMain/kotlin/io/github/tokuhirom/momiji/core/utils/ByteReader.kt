@@ -18,6 +18,19 @@ internal class ByteReader(
         return result
     }
 
+    // read signed 32bit
+    fun readInt(): Int {
+        val result =
+            (bytes[offset].toInt() and 0xFF) or
+                ((bytes[offset + 1].toInt() and 0xFF) shl 8) or
+                ((bytes[offset + 2].toInt() and 0xFF) shl 16) or
+                ((bytes[offset + 3].toInt() and 0xFF) shl 24)
+
+        offset += 4
+
+        return result
+    }
+
     // read unsigned 16bit
     fun readUShort(): UShort {
         val result =
