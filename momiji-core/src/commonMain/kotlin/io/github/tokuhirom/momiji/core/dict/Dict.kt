@@ -28,14 +28,12 @@ data class Dict(
         }
     }
 
-    fun token(resultPair: ResultPair): Token = tokens[resultPair.value shr 8]
-
     private fun token(
         resultPair: ResultPair,
         index: Int,
     ): Token = tokens[(resultPair.value shr 8) + index]
 
-    fun feature(token: Token): String = extractStringFromByteArray(features, token.feature.toInt())
+    private fun feature(token: Token): String = extractStringFromByteArray(features, token.feature.toInt())
 
     private fun extractStringFromByteArray(
         byteArray: ByteArray,
@@ -90,10 +88,6 @@ data class Dict(
             println(charset)
             check(byteReader.offset == 10 * 4 + 32)
 
-            // Darts のバイナリが dsize バイトぶん入っている。
-            // Darts の kotlin 実装はないので、使えないのでスキップ。。
-            // KDary 作るときに Darts-clone じゃなくて Darts を移植すればよかったのかもしれない。。
-            // 評価部分だけ実装するのはアリかも?
             val dartsByteArray = byteReader.copy(dsize)
             check(byteReader.offset == 10 * 4 + 32 + dsize.toInt())
 

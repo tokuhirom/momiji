@@ -1,6 +1,6 @@
 package io.github.tokuhirom.momiji.core.unknown
 
-import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
+import io.github.tokuhirom.momiji.core.Lattice
 import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.dict.Dict
 import io.github.tokuhirom.momiji.core.dict.DictNode

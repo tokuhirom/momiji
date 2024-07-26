@@ -1,5 +1,3 @@
-import io.github.tokuhirom.kdary.KDary
-import io.github.tokuhirom.momiji.gradle.CsvRow
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
@@ -61,17 +59,6 @@ open class BuildDictTask : DefaultTask() {
                 src = mecabDictDir.resolve("matrix.bin").readBytes(),
                 filePrefix = "Matrix",
                 variablePrefix = "Matrix",
-            )
-        }
-
-        private fun buildKdary(wordEntries: List<CsvRow>) {
-            val kdary = KDary.build(wordEntries.map { it.surface.toByteArray(Charsets.UTF_8) })
-            val byteArray = kdary.toByteArray()
-
-            writeBase64Chunks(
-                byteArray,
-                filePrefix = "KDary",
-                variablePrefix = "KDARY_BASE64",
             )
         }
 

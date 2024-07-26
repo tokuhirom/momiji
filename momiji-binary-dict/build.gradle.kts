@@ -29,7 +29,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":momiji-core"))
-                implementation("io.github.tokuhirom.kdary:kdary:0.9.3")
                 implementation("com.squareup.okio:okio:3.9.0")
             }
         }

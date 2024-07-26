@@ -10,7 +10,7 @@ plugins {
     id("org.jetbrains.dokka") version "1.9.20"
 }
 
-group = "io.github.tokuhirom.kdary"
+group = "io.github.tokuhirom.momiji"
 version = System.getenv("LIB_VERSION") ?: (
     "1.0.0" +
         if (hasProperty("release")) {

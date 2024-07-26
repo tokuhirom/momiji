@@ -1,7 +1,5 @@
-package io.github.tokuhirom.kdary.samples.momiji.engine
+package io.github.tokuhirom.momiji.core
 
-import io.github.tokuhirom.momiji.core.CostManager
-import io.github.tokuhirom.momiji.core.Node
 import io.github.tokuhirom.momiji.core.dict.DictNode
 
 /**

@@ -1,13 +1,11 @@
 package io.github.tokuhirom.momiji.core
 
-import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
 import io.github.tokuhirom.momiji.core.dict.Dict
 import io.github.tokuhirom.momiji.core.unknown.UnknownWordDetector
 
 /**
  * LatticeBuilder builds a lattice from a given input string.
  *
- * @property kdary The KDary object to use for common prefix search.
  * @property dict The dictionary to use for known words.
  * @property costManager The cost manager to use for calculating costs.
  * @property unknownWordDetector The unknown word detector to use for detecting unknown words.

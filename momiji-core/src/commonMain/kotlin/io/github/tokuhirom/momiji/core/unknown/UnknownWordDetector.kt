@@ -1,6 +1,6 @@
 package io.github.tokuhirom.momiji.core.unknown
 
-import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
+import io.github.tokuhirom.momiji.core.Lattice
 import io.github.tokuhirom.momiji.core.dict.DictNode
 
 // DefaultUnknownWordDetector で 99% のケースはカバーされている。
