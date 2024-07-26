@@ -3,7 +3,6 @@ package io.github.tokuhirom.momiji.core.dict
 import io.github.tokuhirom.momiji.core.dict.Darts.ResultPair
 import io.github.tokuhirom.momiji.core.utils.ByteReader
 
-// TODO rename to Dict
 data class Dict(
     val version: UInt,
     val charset: String,
@@ -18,11 +17,14 @@ data class Dict(
                 key
                     .copyOfRange(0, result.length)
                     .decodeToString()
-            this.findTokens(result).map {
+            val size = this.tokenSize(result)
+            (0 until size).map {
+                val token = this.token(result, it)
+                val feature = this.feature(token)
                 DictNode(
                     surface,
-                    it.token,
-                    it.feature,
+                    token,
+                    feature,
                 )
             }
         }
@@ -46,19 +48,29 @@ data class Dict(
 
     private fun tokenSize(resultPair: ResultPair): Int = resultPair.value and 0xFF
 
-    fun findTokens(resultPair: ResultPair): List<TokenWithFeature> {
-        val size = this.tokenSize(resultPair)
-        return (0 until size).map {
-            val token = this.token(resultPair, it)
-            val feature = this.feature(token)
-            TokenWithFeature(token, feature)
-        }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as Dict
+
+        if (version != other.version) return false
+        if (charset != other.charset) return false
+        if (darts != other.darts) return false
+        if (tokens != other.tokens) return false
+        if (!features.contentEquals(other.features)) return false
+
+        return true
     }
 
-    data class TokenWithFeature(
-        val token: Token,
-        val feature: String,
-    )
+    override fun hashCode(): Int {
+        var result = version.hashCode()
+        result = 31 * result + charset.hashCode()
+        result = 31 * result + darts.hashCode()
+        result = 31 * result + tokens.hashCode()
+        result = 31 * result + features.contentHashCode()
+        return result
+    }
 
     companion object {
         private const val DICTIONARY_MAGIC_ID: UInt = 0xef718f77u

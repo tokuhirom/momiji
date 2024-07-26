@@ -82,7 +82,5 @@ class Darts(
     data class ResultPair(
         val value: Int,
         val length: Int,
-    ) {
-        fun tokenSize(): Int = this.value and 0xff
-    }
+    )
 }
