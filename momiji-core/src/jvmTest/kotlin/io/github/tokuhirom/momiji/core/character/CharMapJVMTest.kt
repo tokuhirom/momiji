@@ -9,23 +9,6 @@ class CharMapJVMTest {
     private val fileSystem = FileSystem.SYSTEM
 
     @Test
-    fun testText() {
-        val path = "../".toPath().resolve("momiji-ipadic/build/dict/char.def")
-        if (!fileSystem.exists(path)) {
-            println("file not found. skip the test.: $path")
-            return
-        }
-
-        val charMap =
-            CharMap.parseText(
-                fileSystem.read(path) {
-                    this.readUtf8()
-                },
-            )
-        assertEquals("ALPHA", charMap.categoryName(charMap.resolve('A').defaultType))
-    }
-
-    @Test
     fun testBinary() {
         val path = "../".toPath().resolve("momiji-ipadic/build/dict/char.bin")
         if (!fileSystem.exists(path)) {

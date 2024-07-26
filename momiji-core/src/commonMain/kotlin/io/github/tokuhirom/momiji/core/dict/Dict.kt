@@ -92,12 +92,10 @@ data class Dict(
             check((DICTIONARY_MAGIC_ID xor magic).toInt() == bytes.size) {
                 "Wrong magic. Broken dictionary"
             }
-            println(bytes.size)
             check(byteReader.offset == 10 * 4)
 
             // 32 bytes
             val charset = byteReader.readNullFilledString(32)
-            println(charset)
             check(byteReader.offset == 10 * 4 + 32)
 
             val dartsByteArray = byteReader.copy(dsize)
@@ -122,8 +120,6 @@ data class Dict(
             val features = byteReader.readRemaining()
 
             check(bytes.size == byteReader.offset)
-            println(tokens.size)
-            println(features.size)
             return Dict(version, charset, Darts(dartsByteArray), tokens, features)
         }
     }

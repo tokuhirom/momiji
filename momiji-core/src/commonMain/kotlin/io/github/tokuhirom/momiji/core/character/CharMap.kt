@@ -13,14 +13,6 @@ data class CharMap(
 
     companion object {
         /**
-         * Parse a text representation of a character map.
-         * It's the char.def in mecab's dictionary.
-         *f
-         * @param src The text representation of the character map.
-         */
-        fun parseText(src: String): CharMap = CharMapTextParser().parseText(src)
-
-        /**
          * Parse the binary format of the char.bin file.
          *
          * @see <a href="https://github.com/taku910/mecab/blob/master/mecab/src/char_property.cpp">char_property.cpp</a>
