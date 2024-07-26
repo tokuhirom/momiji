@@ -1,9 +1,9 @@
 package io.github.tokuhirom.momiji.core.unknown
 
-import io.github.tokuhirom.kdary.result.CommonPrefixSearchResult
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
 import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.dict.Dict
+import io.github.tokuhirom.momiji.core.dict.DictNode
 import kotlin.math.min
 
 /**
@@ -16,7 +16,7 @@ class DefaultUnknownWordDetector(
     override fun detect(
         src: String,
         i: Int,
-        results: List<CommonPrefixSearchResult>,
+        results: List<DictNode>,
         lattice: Lattice,
     ): Boolean {
         var hasSingleWord = false
@@ -52,13 +52,15 @@ class DefaultUnknownWordDetector(
                             src
                                 .substring(i)
                                 .encodeToByteArray()
-                                .copyOfRange(0, it.length)
+                                .copyOfRange(0, it.surface.length)
                                 .decodeToString()
                         }.contains(s)
                 ) {
                     val category = charMap.categoryName(charInfo.defaultType)
-                    unknown[category].forEach { wordEntry ->
-                        lattice.insert(i, i + s.length, wordEntry)
+
+                    val nodes = unknown.commonPrefixSearch(category.encodeToByteArray())
+                    nodes.forEach { node ->
+                        lattice.insert(i, i + s.length, node)
                     }
                     if (s.length == 1) {
                         hasSingleWord = true

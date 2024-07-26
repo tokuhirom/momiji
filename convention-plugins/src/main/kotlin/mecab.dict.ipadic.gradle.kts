@@ -39,61 +39,29 @@ open class BuildDictTask : DefaultTask() {
         private val dicType: String,
     ) {
         fun generateAll(mecabDictDir: File) {
-            val dict = readDict(mecabDictDir)
-            writeDict(dict)
-            buildKdary(dict)
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("sys.dic").readBytes(),
+                filePrefix = "Sys",
+                variablePrefix = "SYS",
+            )
 
-            // char.def/unk.def は text 形式のほうが小さいので text 形式を採用
-            writeChunks(
-                src = mecabDictDir.resolve("unk.def").readEucJPText(),
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("unk.dic").readBytes(),
                 filePrefix = "Unk",
                 variablePrefix = "UNK",
             )
-            writeChunks(
-                src = mecabDictDir.resolve("char.def").readEucJPText(),
+
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("char.bin").readBytes(),
                 filePrefix = "Char",
                 variablePrefix = "CHAR",
             )
 
-            // write matrix.bin
-            // matrix.bin は明らかにバイナリ形式のほうが空間効率が良い。
             writeBase64Chunks(
                 src = mecabDictDir.resolve("matrix.bin").readBytes(),
                 filePrefix = "Matrix",
                 variablePrefix = "Matrix",
             )
-        }
-
-        private fun readDict(dictDir: File): List<CsvRow> {
-            val csvFiles =
-                dictDir.listFiles { _, name ->
-                    name.endsWith(".csv")
-                }
-            checkNotNull(csvFiles) {
-                "csvFiles must not null"
-            }
-            val eucJpCharset = Charset.forName("EUC-JP")
-            val lines =
-                csvFiles
-                    .flatMap { it.readLines(eucJpCharset) }
-                    .map {
-                        CsvRow.parse(it)
-                    }.sortedBy { it.surface }
-            return lines
-        }
-
-        private fun writeDict(dict: List<CsvRow>) {
-            val basedir =
-                project.layout.projectDirectory
-                    .asFile
-                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/dictcsv")
-
-            writeChunks(
-                src = dict.joinToString("\n") { it.raw },
-                filePrefix = "DictCsv",
-                variablePrefix = "DICT_CSV",
-            )
-            println("Converted to $basedir")
         }
 
         private fun buildKdary(wordEntries: List<CsvRow>) {

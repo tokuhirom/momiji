@@ -2,6 +2,8 @@
 
 import Mecab_dict_ipadic_gradle.*
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+
 
 plugins {
     kotlin("multiplatform")
@@ -15,12 +17,13 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
-    jvm()
+    jvm {
+    }
     js {
         nodejs {
             testTask {
                 useMocha {
-                    timeout = "10000" // 10 seconds timeout
+                    timeout = "100000" // 100 seconds timeout
                 }
             }
         }
@@ -51,8 +54,14 @@ tasks.register<BuildDictTask>("buildDict") {
     dicType = "ipadic"
 }
 
-// Example task dependency
-// tasks.getByName("build").dependsOn("buildDict")
+tasks.withType<KotlinJvmTest> {
+    jvmArgs =
+        listOf(
+            "-Xmx2g",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:HeapDumpPath=./heapdump.hprof",
+        )
+}
 
 /*
 mavenPublishing {

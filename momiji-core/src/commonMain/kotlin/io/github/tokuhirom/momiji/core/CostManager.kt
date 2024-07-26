@@ -11,7 +11,11 @@ data class CostManager(
     /**
      * Get the emission cost
      */
-    fun getEmissionCost(node: Node): Int = node.dictRow?.cost ?: 0
+    fun getEmissionCost(node: Node): Int =
+        node.dictRow
+            ?.token
+            ?.wcost
+            ?.toInt() ?: 0
 
     /**
      * Get the transition cost
@@ -27,13 +31,21 @@ data class CostManager(
             when (left) {
                 is Node.BOS -> 0
                 is Node.EOS -> error("Should not reach here")
-                is Node.Word -> left.dictRow?.rightId ?: return 0
+                is Node.Word ->
+                    left.dictRow
+                        ?.token
+                        ?.rcAttr
+                        ?.toInt() ?: return 0
             }
         val rightLeftId =
             when (right) {
                 is Node.BOS -> error("Should not reach here")
                 is Node.EOS -> 0
-                is Node.Word -> right.dictRow?.leftId ?: return 0
+                is Node.Word ->
+                    right.dictRow
+                        ?.token
+                        ?.lcAttr
+                        ?.toInt() ?: return 0
             }
 
         return matrix.find(leftRightId, rightLeftId)

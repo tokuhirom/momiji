@@ -2,7 +2,7 @@ package io.github.tokuhirom.kdary.samples.momiji.engine
 
 import io.github.tokuhirom.momiji.core.CostManager
 import io.github.tokuhirom.momiji.core.Node
-import io.github.tokuhirom.momiji.core.dict.DictRow
+import io.github.tokuhirom.momiji.core.dict.DictNode
 
 /**
  * Every index should be the character index.
@@ -34,7 +34,7 @@ class Lattice(
     internal fun insert(
         begin: Int,
         end: Int,
-        dictRow: DictRow? = null,
+        dictRow: DictNode? = null,
     ): Node {
         val node =
             Node.Word(
@@ -100,8 +100,8 @@ class Lattice(
         // ノードのエクスポート
         for (i in beginNodes.indices) {
             for (node in beginNodes[i]) {
-                val label = node.surface.replace("\"", "\\\"") + node.dictRow?.annotations
-                sb.append("node_${node.hashCode().toUInt()} [label=\"$label (${node.dictRow?.cost ?: "?"})\"];\n")
+                val label = node.surface.replace("\"", "\\\"") + node.dictRow?.feature
+                sb.append("node_${node.hashCode().toUInt()} [label=\"$label (${node.dictRow?.token?.wcost ?: "?"})\"];\n")
             }
         }
 
@@ -115,7 +115,7 @@ class Lattice(
                     val emissionCost = costManager.getEmissionCost(rnode)
                     val totalCost = transitionCost + emissionCost
                     sb.append(
-                        "    /* lnode:${lnode.surface}(rid=${lnode.dictRow?.rightId}) rnode:${rnode.surface}(lid=${rnode.dictRow?.leftId}) */\n",
+                        "    /* lnode:${lnode.surface}(rid=${lnode.dictRow?.token?.rcAttr}) rnode:${rnode.surface}(lid=${rnode.dictRow?.token?.lcAttr}) */\n",
                     )
                     sb.append(
                         "    node_${lnode.hashCode().toUInt()} -> node_${rnode.hashCode().toUInt()} [label=\"$totalCost\"];\n",

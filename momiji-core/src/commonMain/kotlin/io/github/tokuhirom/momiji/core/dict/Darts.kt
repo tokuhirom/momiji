@@ -17,7 +17,7 @@ class Darts(
 ) {
     private val array = buildUnits(byteArray)
 
-    fun commonPrefixSearch(key: ByteArray): MutableList<ResultPair> {
+    fun commonPrefixSearch(key: ByteArray): List<ResultPair> {
         var b = array[0].base
         var n = 0
         var p = 0

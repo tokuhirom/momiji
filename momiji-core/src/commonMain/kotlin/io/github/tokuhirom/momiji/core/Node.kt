@@ -1,6 +1,6 @@
 package io.github.tokuhirom.momiji.core
 
-import io.github.tokuhirom.momiji.core.dict.DictRow
+import io.github.tokuhirom.momiji.core.dict.DictNode
 
 /**
  * Node in the lattice.
@@ -8,7 +8,7 @@ import io.github.tokuhirom.momiji.core.dict.DictRow
 sealed class Node(
     open val surface: String,
     open val length: Int,
-    open val dictRow: DictRow?,
+    open val dictRow: DictNode?,
     // 最小コスト
     open var minCost: Int = Int.MAX_VALUE,
     // 最小コスト経路(直近のみ保存)
@@ -34,7 +34,7 @@ sealed class Node(
     data class Word(
         override val surface: String,
         override val length: Int,
-        override val dictRow: DictRow?,
+        override val dictRow: DictNode?,
         override var minCost: Int = Int.MAX_VALUE,
         override var minPrev: Node? = null,
     ) : Node(surface, length, dictRow, minCost, minPrev)

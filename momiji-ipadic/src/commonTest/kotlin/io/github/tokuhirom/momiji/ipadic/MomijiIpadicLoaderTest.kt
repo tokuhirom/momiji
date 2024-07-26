@@ -105,12 +105,12 @@ class MomijiIpadicLoaderTest {
             val nodes = lattice.viterbi()
 
             nodes.forEach {
-                println("  \"" + it.surface + " / " + it.dictRow?.annotations + "\",")
+                println("  \"" + it.surface + " / " + it.dictRow?.feature + "\",")
             }
 
             assertEquals(
                 expected,
-                nodes.map { it.surface + " / " + it.dictRow?.annotations },
+                nodes.map { it.surface + " / " + it.dictRow?.feature },
             )
         }
     }
@@ -118,17 +118,31 @@ class MomijiIpadicLoaderTest {
     @Test
     fun loadDict() {
         val loader = MomijiIpadicLoader()
-        val dict = loader.loadDict()
-        dict["東京"].forEach {
-            assertEquals("東京", it.surface)
-            assertEquals("名詞,固有名詞,地域,一般,*,*,東京,トウキョウ,トーキョー", it.annotations)
-        }
+        val dict = loader.loadSysDic()
+        val nodes = dict.commonPrefixSearch("東京".encodeToByteArray())
+        println(nodes.joinToString("\n") { it.toString() })
+
+        assertEquals(
+            listOf(
+                "東,1293,1293,11611,名詞,固有名詞,地域,一般,*,*,東,ヒガシ,ヒガシ",
+                "東,1293,1293,12705,名詞,固有名詞,地域,一般,*,*,東,アズマ,アズマ",
+                "東,1285,1285,6245,名詞,一般,*,*,*,*,東,ヒガシ,ヒガシ",
+                "東,1285,1285,9781,名詞,一般,*,*,*,*,東,アズマ,アズマ",
+                "東,1288,1288,11632,名詞,固有名詞,一般,*,*,*,東,ヒガシ,ヒガシ",
+                "東,1290,1290,12256,名詞,固有名詞,人名,姓,*,*,東,アズマ,アズマ",
+                "東,1290,1290,13358,名詞,固有名詞,人名,姓,*,*,東,ヒガシ,ヒガシ",
+                "東,1291,1291,13228,名詞,固有名詞,人名,名,*,*,東,ヒガシ,ヒガシ",
+                "東京,1293,1293,3003,名詞,固有名詞,地域,一般,*,*,東京,トウキョウ,トーキョー",
+            ),
+            nodes.map { it.toString() },
+        )
     }
 
     @Test
     fun loadUnknown() {
         val loader = MomijiIpadicLoader()
         val unknown = loader.loadUnknown()
-        assertEquals(7, unknown["HIRAGANA"].size)
+        val results = unknown.commonPrefixSearch("東京".encodeToByteArray())
+        assertEquals(0, results.size)
     }
 }

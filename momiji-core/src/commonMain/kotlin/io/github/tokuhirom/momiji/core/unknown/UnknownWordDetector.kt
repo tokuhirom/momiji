@@ -1,7 +1,7 @@
 package io.github.tokuhirom.momiji.core.unknown
 
-import io.github.tokuhirom.kdary.result.CommonPrefixSearchResult
 import io.github.tokuhirom.kdary.samples.momiji.engine.Lattice
+import io.github.tokuhirom.momiji.core.dict.DictNode
 
 // DefaultUnknownWordDetector で 99% のケースはカバーされている。
 // しかしながら、DefaultUnknownWordDetector は Surrogate Pair に対応していない。
@@ -23,7 +23,7 @@ interface UnknownWordDetector {
     fun detect(
         src: String,
         i: Int,
-        results: List<CommonPrefixSearchResult>,
+        results: List<DictNode>,
         lattice: Lattice,
     ): Boolean
 }
