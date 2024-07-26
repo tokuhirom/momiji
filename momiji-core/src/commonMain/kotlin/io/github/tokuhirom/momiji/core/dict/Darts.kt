@@ -27,7 +27,6 @@ class Darts(
         for (i in key.indices) {
             p = b
             n = array[p].base
-            println("  $i $p $n")
             if (b.toUInt() == array[p].check && n < 0) {
                 val value = -n - 1
                 results.add(

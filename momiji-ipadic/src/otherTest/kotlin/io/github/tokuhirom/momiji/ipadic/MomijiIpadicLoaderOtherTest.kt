@@ -3,7 +3,7 @@ package io.github.tokuhirom.momiji.ipadic
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MomijiIpadicLoaderTest {
+class MomijiIpadicLoaderOtherTest {
     @Test
     fun testLoad() {
         val loader = MomijiIpadicLoader()
@@ -139,7 +139,7 @@ class MomijiIpadicLoaderTest {
     }
 
     @Test
-    fun loadUnknown() {
+    fun testLoadUnknown() {
         val loader = MomijiIpadicLoader()
         val unknown = loader.loadUnknown()
         val results = unknown.commonPrefixSearch("東京".encodeToByteArray())

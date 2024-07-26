@@ -10,6 +10,9 @@ data class Dict(
     val tokens: List<Token>,
     private val features: ByteArray,
 ) {
+    val size
+        get() = tokens.size
+
     fun commonPrefixSearch(key: ByteArray): List<DictNode> {
         val results = darts.commonPrefixSearch(key)
         return results.flatMap { result ->

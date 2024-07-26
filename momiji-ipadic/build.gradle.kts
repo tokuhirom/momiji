@@ -34,8 +34,6 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("src/generated/commonMain/kotlin")
-
             dependencies {
                 implementation(project(":momiji-core"))
             }
@@ -44,6 +42,33 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
             }
+        }
+        val jvmMain by getting {
+            resources.srcDir("src/generated/jvmMain/resources")
+        }
+
+        // otherMain
+        val linuxX64Main by getting {
+            kotlin.srcDir("src/generated/otherMain/kotlin")
+            kotlin.srcDir("src/otherMain/kotlin")
+        }
+        val jsMain by getting {
+            kotlin.srcDir("src/generated/otherMain/kotlin")
+            kotlin.srcDir("src/otherMain/kotlin")
+        }
+        val macosArm64Main by getting {
+            kotlin.srcDir("src/generated/otherMain/kotlin")
+            kotlin.srcDir("src/otherMain/kotlin")
+        }
+        // otherTest
+        val linuxX64Test by getting {
+            kotlin.srcDir("src/otherTest/kotlin")
+        }
+        val jsTest by getting {
+            kotlin.srcDir("src/otherTest/kotlin")
+        }
+        val macosArm64Test by getting {
+            kotlin.srcDir("src/otherTest/kotlin")
         }
     }
 }

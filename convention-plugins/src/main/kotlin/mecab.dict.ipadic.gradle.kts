@@ -20,14 +20,13 @@ open class BuildDictTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        baseDir().deleteRecursively()
-
         // mkdir -p build
         buildDir().mkdirs()
 
         val tarball = download()
         val mecabDictDir = extract(tarball)
         buildMecabDictionary(mecabDictDir)
+        copyFiles(mecabDictDir)
 
         SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
     }
@@ -81,11 +80,10 @@ open class BuildDictTask : DefaultTask() {
             pkg: String = "io.github.tokuhirom.momiji.ipadic.${filePrefix.lowercase()}",
             variablePrefix: String,
         ) {
-            println("Generating $filePrefix")
             val baseDir =
                 project.layout.projectDirectory
                     .asFile
-                    .resolve("src/generated/commonMain/kotlin/${pkg.replace(".", "/")}")
+                    .resolve("src/generated/otherMain/kotlin/${pkg.replace(".", "/")}")
             baseDir.mkdirs()
 
             // JVM では文字列として 65535 文字が最大。
@@ -94,7 +92,9 @@ open class BuildDictTask : DefaultTask() {
             val chunkGroup = groups.chunked(10)
 
             chunkGroup.forEachIndexed { index, chunk ->
-                baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
+                val filename = baseDir.resolve("$filePrefix$index.kt")
+                println("Writing $filename")
+                filename.bufferedWriter().use { writer ->
                     writer.write("@file:Suppress(\"ktlint:standard:max-line-length\")\n\n")
                     writer.write("package $pkg\n\n")
                     writer.write("internal val ${variablePrefix}_$index = listOf(\n")
@@ -106,7 +106,9 @@ open class BuildDictTask : DefaultTask() {
                 }
             }
 
-            baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
+            val filename = baseDir.resolve("$filePrefix.kt")
+            println("Writing $filename")
+            filename.bufferedWriter().use { writer ->
                 writer.write("package $pkg\n\n")
                 writer.write("val $variablePrefix = ")
                 writer.write(
@@ -159,10 +161,6 @@ open class BuildDictTask : DefaultTask() {
             return parts
         }
     }
-
-    private fun baseDir() =
-        project.layout.projectDirectory.asFile
-            .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/$dicType/")
 
     private fun buildDir() =
         project.layout.buildDirectory
@@ -219,6 +217,21 @@ open class BuildDictTask : DefaultTask() {
             val output = process.inputStream.bufferedReader().use { it.readText() }
             val status = process.waitFor()
             println("$command: $status: $output")
+        }
+    }
+
+    private fun copyFiles(mecabDictDir: File) {
+        val destDir =
+            project.layout.projectDirectory.asFile
+                .resolve("src/generated/jvmMain/resources/mecab-$dicType")
+        destDir.mkdirs()
+
+        listOf("sys.dic", "unk.dic", "char.bin", "matrix.bin").forEach { file ->
+            // copy to src/generated/jvmMain/resources/
+            val src = mecabDictDir.resolve(file)
+            val dest = destDir.resolve(file)
+            println("Copying $src to $dest")
+            src.copyTo(dest, overwrite = true)
         }
     }
 }
