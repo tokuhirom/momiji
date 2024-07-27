@@ -18,6 +18,9 @@ open class BuildDictTask : DefaultTask() {
     @Input
     var dicType = "ipadic"
 
+    @Input
+    var type = "resources"
+
     @TaskAction
     fun run() {
         // mkdir -p build
@@ -26,9 +29,11 @@ open class BuildDictTask : DefaultTask() {
         val tarball = download()
         val mecabDictDir = extract(tarball)
         buildMecabDictionary(mecabDictDir)
-        copyFiles(mecabDictDir)
 
-        SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
+        when (type) {
+            "resources" -> copyResources(mecabDictDir)
+            "code" -> SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
+        }
     }
 
     class SourceCodeGenerator(
@@ -220,10 +225,10 @@ open class BuildDictTask : DefaultTask() {
         }
     }
 
-    private fun copyFiles(mecabDictDir: File) {
+    private fun copyResources(mecabDictDir: File) {
         val destDir =
             project.layout.projectDirectory.asFile
-                .resolve("src/generated/jvmMain/resources/mecab-$dicType")
+                .resolve("src/generated/commonMain/resources/mecab-$dicType")
         destDir.mkdirs()
 
         listOf("sys.dic", "unk.dic", "char.bin", "matrix.bin").forEach { file ->

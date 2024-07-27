@@ -14,4 +14,5 @@ rootProject.name = "momiji"
 
 include(":momiji-core")
 include(":momiji-ipadic")
+include(":momiji-ipadic-resources")
 include(":momiji-binary-dict")
