@@ -33,7 +33,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":momiji-core"))
-                resources.srcDir("src/generated/commonMain/resources")
             }
         }
         val commonTest by getting {

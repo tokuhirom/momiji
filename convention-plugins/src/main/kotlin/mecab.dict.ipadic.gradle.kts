@@ -228,7 +228,7 @@ open class BuildDictTask : DefaultTask() {
     private fun copyResources(mecabDictDir: File) {
         val destDir =
             project.layout.projectDirectory.asFile
-                .resolve("src/generated/commonMain/resources/mecab-$dicType")
+                .resolve("src/commonMain/resources/mecab-$dicType")
         destDir.mkdirs()
 
         listOf("sys.dic", "unk.dic", "char.bin", "matrix.bin").forEach { file ->
