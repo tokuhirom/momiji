@@ -60,16 +60,6 @@ kotlin {
             kotlin.srcDir("src/generated/otherMain/kotlin")
             kotlin.srcDir("src/otherMain/kotlin")
         }
-        // otherTest
-        val linuxX64Test by getting {
-            kotlin.srcDir("src/otherTest/kotlin")
-        }
-        val jsTest by getting {
-            kotlin.srcDir("src/otherTest/kotlin")
-        }
-        val macosArm64Test by getting {
-            kotlin.srcDir("src/otherTest/kotlin")
-        }
     }
 }
 
