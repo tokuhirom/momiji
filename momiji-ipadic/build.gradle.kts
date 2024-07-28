@@ -51,24 +51,20 @@ kotlin {
             }
         }
 
-        // otherMain
         val jsMain by getting {
             dependencies {
                 implementation(project(":momiji-ipadic-code"))
             }
-            kotlin.srcDir("src/otherMain/kotlin")
         }
         val linuxX64Main by getting {
             dependencies {
                 implementation(project(":momiji-ipadic-code"))
             }
-            kotlin.srcDir("src/otherMain/kotlin")
         }
         val macosArm64Main by getting {
             dependencies {
                 implementation(project(":momiji-ipadic-code"))
             }
-            kotlin.srcDir("src/otherMain/kotlin")
         }
     }
 }
