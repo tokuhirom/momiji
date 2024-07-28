@@ -62,7 +62,7 @@ open class BuildDictTask : DefaultTask() {
             writeBase64Chunks(
                 src = mecabDictDir.resolve("matrix.bin").readBytes(),
                 filePrefix = "Matrix",
-                variablePrefix = "Matrix",
+                variablePrefix = "MATRIX",
             )
         }
 
@@ -88,7 +88,7 @@ open class BuildDictTask : DefaultTask() {
             val baseDir =
                 project.layout.projectDirectory
                     .asFile
-                    .resolve("src/generated/otherMain/kotlin/${pkg.replace(".", "/")}")
+                    .resolve("src/commonMain/kotlin/${pkg.replace(".", "/")}")
             baseDir.mkdirs()
 
             // JVM では文字列として 65535 文字が最大。
@@ -232,7 +232,6 @@ open class BuildDictTask : DefaultTask() {
         destDir.mkdirs()
 
         listOf("sys.dic", "unk.dic", "char.bin", "matrix.bin").forEach { file ->
-            // copy to src/generated/jvmMain/resources/
             val src = mecabDictDir.resolve(file)
             val dest = destDir.resolve(file)
             println("Copying $src to $dest")

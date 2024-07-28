@@ -3,33 +3,23 @@ package io.github.tokuhirom.momiji.ipadic
 import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.dict.Dict
 import io.github.tokuhirom.momiji.core.matrix.Matrix
-import io.github.tokuhirom.momiji.ipadic.char.CHAR
-import io.github.tokuhirom.momiji.ipadic.sys.SYS
-import io.github.tokuhirom.momiji.ipadic.unk.UNK
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-@OptIn(ExperimentalEncodingApi::class)
-internal actual fun MomijiIpadicLoader.loadSysDic(): Dict = Dict.parseBinary(Base64.decode(SYS))
+internal actual fun MomijiIpadicLoader.loadSysDic(): Dict = momijiLoadSysDic()
 
 /**
  * Load the matrix of the transition cost.
  */
-@OptIn(ExperimentalEncodingApi::class)
-internal actual fun MomijiIpadicLoader.loadMatrix(): Matrix =
-    Matrix.parseBinary(Base64.decode(io.github.tokuhirom.momiji.ipadic.matrix.Matrix))
+internal actual fun MomijiIpadicLoader.loadMatrix(): Matrix = momijiLoadMatrix()
 
 /**
  * Load the character map.
  */
-@OptIn(ExperimentalEncodingApi::class)
-internal actual fun MomijiIpadicLoader.loadCharMap(): CharMap = CharMap.parseBinary(Base64.decode(CHAR))
+internal actual fun MomijiIpadicLoader.loadCharMap(): CharMap = momijiLoadCharMap()
 
 /**
  * Load the unknown word dictionary.
  */
-@OptIn(ExperimentalEncodingApi::class)
-internal actual fun MomijiIpadicLoader.loadUnknown(): Dict = Dict.parseBinary(Base64.decode(UNK))
+internal actual fun MomijiIpadicLoader.loadUnknown(): Dict = momijiLoadUnknown()
 
 fun main() {
     val loader = MomijiIpadicLoader()

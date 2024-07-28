@@ -51,24 +51,24 @@ kotlin {
 
         // otherMain
         val jsMain by getting {
-            kotlin.srcDir("src/generated/otherMain/kotlin")
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
             kotlin.srcDir("src/otherMain/kotlin")
         }
         val linuxX64Main by getting {
-            kotlin.srcDir("src/generated/otherMain/kotlin")
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
             kotlin.srcDir("src/otherMain/kotlin")
         }
         val macosArm64Main by getting {
-            kotlin.srcDir("src/generated/otherMain/kotlin")
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
             kotlin.srcDir("src/otherMain/kotlin")
         }
     }
-}
-
-tasks.register<BuildDictTask>("buildDict") {
-    url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
-    dicType = "ipadic"
-    type = "code"
 }
 
 tasks.withType<KotlinJvmTest> {
