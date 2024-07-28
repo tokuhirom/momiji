@@ -22,13 +22,24 @@ kotlin {
         }
     }
     macosArm64()
-//    macosX64()
+    macosX64()
     linuxX64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.github.tokuhirom.kdary:kdary:0.9.3")
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
+        val jvmTest by getting {
+            dependencies {
+                implementation("com.squareup.okio:okio:3.9.0")
             }
         }
     }

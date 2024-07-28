@@ -9,8 +9,8 @@ bin/
 mecab-ipadic.tar.gz
 mecab-ipadic/
 mecab-ipadic-2.7.0-20070801/
-noun.kdary
 build/
 momiji.csv
-momiji.kdary
 *.hprof
+*.bin
+*.dic

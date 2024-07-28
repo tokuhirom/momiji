@@ -21,9 +21,9 @@ publishing {
 
         // Provide artifacts information required by Maven Central
         pom {
-            name.set("Double Array Trie for Kotlin")
-            description.set("Double Array Trie for Kotlin")
-            url.set("https://github.com/tokuhirom/kdary")
+            name.set("A morphological analyzer written in Pure Kotlin")
+            description.set("A morphological analyzer written in Pure Kotlin")
+            url.set("https://github.com/tokuhirom/momiji")
 
             licenses {
                 license {
@@ -40,7 +40,7 @@ publishing {
                 }
             }
             scm {
-                url.set("https://github.com/tokuhirom/kdary")
+                url.set("https://github.com/tokuhirom/momiji")
             }
         }
     }

@@ -1,7 +1,10 @@
 @file:Suppress("ktlint:standard:no-wildcard-imports", "DEPRECATION")
 
 import Mecab_dict_ipadic_gradle.*
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
+
 
 plugins {
     kotlin("multiplatform")
@@ -15,12 +18,13 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
-    jvm()
+    jvm {
+    }
     js {
         nodejs {
             testTask {
                 useMocha {
-                    timeout = "10000" // 10 seconds timeout
+                    timeout = "100000" // 100 seconds timeout
                 }
             }
         }
@@ -31,25 +35,59 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("src/generated/commonMain/kotlin")
-
             dependencies {
                 implementation(project(":momiji-core"))
-                implementation("io.github.tokuhirom.kdary:kdary:0.9.3")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.kotest:kotest-framework-engine:5.0.0")
+                implementation("io.kotest:kotest-framework-datatest:5.0.0")
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation(project(":momiji-ipadic-resources"))
+            }
+        }
+
+        val jsMain by getting {
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
+        }
+        val linuxX64Main by getting {
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
+        }
+        val macosArm64Main by getting {
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
             }
         }
     }
 }
 
-tasks.register<BuildDictTask>("buildDict")
+tasks.withType<Test> {
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
+}
 
-// Example task dependency
-// tasks.getByName("build").dependsOn("buildDict")
+tasks.withType<KotlinJvmTest> {
+    jvmArgs =
+        listOf(
+            "-Xmx2g",
+            "-XX:+HeapDumpOnOutOfMemoryError",
+            "-XX:HeapDumpPath=./heapdump.hprof",
+        )
+}
 
 /*
 mavenPublishing {

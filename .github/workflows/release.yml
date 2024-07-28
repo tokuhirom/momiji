@@ -52,7 +52,7 @@ jobs:
       - name: Gradle buildDict
         uses: gradle/gradle-build-action@ac2d340dc04d9e1113182899e983b5400c17cda1
         with:
-          arguments: :momiji-ipadic:buildDict
+          arguments: :momiji-ipadic-code:buildDict :momiji-ipadic-resources:buildDict
       - name: Gradle publish
         uses: gradle/gradle-build-action@ac2d340dc04d9e1113182899e983b5400c17cda1
         with:

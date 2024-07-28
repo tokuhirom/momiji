@@ -1,4 +1,3 @@
-import io.github.tokuhirom.kdary.KDary
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
@@ -9,37 +8,171 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.charset.Charset
-import java.nio.file.Path
-import java.util.Locale
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 open class BuildDictTask : DefaultTask() {
-    private val url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
-    private val tarball = "mecab-ipadic.tar.gz"
+    @Input
+    var url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
+
+    @Input
+    var dicType = "ipadic"
+
+    @Input
+    var type = "resources"
 
     @TaskAction
     fun run() {
-        project.layout.projectDirectory
-            .asFile
-            .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/")
-            .deleteRecursively()
-
         // mkdir -p build
+        buildDir().mkdirs()
+
+        val tarball = download()
+        val mecabDictDir = extract(tarball)
+        buildMecabDictionary(mecabDictDir)
+
+        when (type) {
+            "resources" -> copyResources(mecabDictDir)
+            "code" -> SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
+        }
+    }
+
+    class SourceCodeGenerator(
+        private val project: Project,
+        private val dicType: String,
+    ) {
+        fun generateAll(mecabDictDir: File) {
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("sys.dic").readBytes(),
+                filePrefix = "Sys",
+                variablePrefix = "SYS",
+            )
+
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("unk.dic").readBytes(),
+                filePrefix = "Unk",
+                variablePrefix = "UNK",
+            )
+
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("char.bin").readBytes(),
+                filePrefix = "Char",
+                variablePrefix = "CHAR",
+            )
+
+            writeBase64Chunks(
+                src = mecabDictDir.resolve("matrix.bin").readBytes(),
+                filePrefix = "Matrix",
+                variablePrefix = "MATRIX",
+            )
+        }
+
+        @OptIn(ExperimentalEncodingApi::class)
+        private fun writeBase64Chunks(
+            src: ByteArray,
+            filePrefix: String,
+            variablePrefix: String,
+        ) {
+            writeChunks(
+                src = Base64.encode(src),
+                filePrefix = filePrefix,
+                variablePrefix = variablePrefix,
+            )
+        }
+
+        private fun writeChunks(
+            src: String,
+            filePrefix: String,
+            pkg: String = "io.github.tokuhirom.momiji.ipadic.${filePrefix.lowercase()}",
+            variablePrefix: String,
+        ) {
+            val baseDir =
+                project.layout.projectDirectory
+                    .asFile
+                    .resolve("src/commonMain/kotlin/${pkg.replace(".", "/")}")
+            baseDir.mkdirs()
+
+            // JVM では文字列として 65535 文字が最大。
+            // https://stackoverflow.com/questions/62098263/kotlin-string-max-length-kotlin-file-with-a-long-string-is-not-compiling
+            val groups = splitStringByBytes(src)
+            val chunkGroup = groups.chunked(10)
+
+            chunkGroup.forEachIndexed { index, chunk ->
+                val filename = baseDir.resolve("$filePrefix$index.kt")
+                println("Writing $filename")
+                filename.bufferedWriter().use { writer ->
+                    writer.write("@file:Suppress(\"ktlint:standard:max-line-length\")\n\n")
+                    writer.write("package $pkg\n\n")
+                    writer.write("internal val ${variablePrefix}_$index = listOf(\n")
+                    chunk.forEach {
+                        writer.write("    \"\"\"${escapeKotlinString(it)}\"\"\",\n")
+                    }
+                    writer.write(").joinToString(\"\")\n")
+                    writer.newLine()
+                }
+            }
+
+            val filename = baseDir.resolve("$filePrefix.kt")
+            println("Writing $filename")
+            filename.bufferedWriter().use { writer ->
+                writer.write("package $pkg\n\n")
+                writer.write("val $variablePrefix = ")
+                writer.write(
+                    List(chunkGroup.size) { index ->
+                        "${variablePrefix}_$index"
+                    }.joinToString("+"),
+                )
+                writer.write("\n\n")
+            }
+        }
+
+        private fun File.readEucJPText(): String =
+            this.bufferedReader(Charset.forName("EUC-JP")).use { reader ->
+                reader.readText()
+            }
+
+        private fun escapeKotlinString(src: String): String =
+            src
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\$", "\${'\$'}")
+                .replace("\r", "\\r")
+
+        private fun splitStringByBytes(
+            input: String,
+            maxBytes: Int = 65535,
+        ): List<String> {
+            val charset = Charset.forName("UTF-8")
+            val byteBuffer = input.toByteArray(charset)
+
+            var start = 0
+            val parts = mutableListOf<String>()
+
+            while (start < byteBuffer.size) {
+                var end = start + maxBytes
+                if (end >= byteBuffer.size) {
+                    end = byteBuffer.size
+                } else {
+                    // UTF-8のマルチバイト文字が途中で切れないように調整
+                    while (end > start && (byteBuffer[end].toInt() and 0xC0) == 0x80) {
+                        end--
+                    }
+                }
+
+                val part = String(byteBuffer, start, end - start, charset)
+                parts.add(part)
+                start = end
+            }
+
+            return parts
+        }
+    }
+
+    private fun buildDir() =
         project.layout.buildDirectory
             .get()
             .asFile
-            .mkdirs()
 
-        download()
-        val mecabDictDir = extract()
-        buildDict(mecabDictDir)
-        val wordEntries = convertFiles(mecabDictDir)
-        buildKdary(wordEntries)
-        copyFiles(mecabDictDir)
-    }
-
-    private fun download() {
+    private fun download(): File =
         runBlocking {
             val client =
                 HttpClient {
@@ -50,33 +183,40 @@ open class BuildDictTask : DefaultTask() {
                     }
                 }
             val response = client.get(url)
-            val file = File(tarball)
+            val file = buildDir().resolve("mecab-$dicType.tar.gz")
             response.bodyAsChannel().copyTo(file.outputStream())
-            println("Downloaded $tarball")
+            println("Downloaded $file")
+            file
         }
-    }
 
-    private fun extract(): Path {
-        val buildDir =
-            project.layout.buildDirectory
-                .get()
-                .asFile
+    private fun extract(tarball: File): File {
+        val dictDir = buildDir().resolve("dict")
+        dictDir.mkdirs()
 
-        val processBuilder = ProcessBuilder("tar", "-xzvf", tarball, "-C", buildDir.absolutePath)
+        val processBuilder =
+            ProcessBuilder(
+                "tar",
+                "-xzvf",
+                tarball.absolutePath,
+                "--strip-components=1",
+                "-C",
+                dictDir.absolutePath,
+            ).redirectErrorStream(true)
         val process = processBuilder.start()
         process.waitFor()
-        println("Extracted to $buildDir")
-        return buildDir.toPath().resolve("mecab-ipadic-2.7.0-20070801")
+        val output = process.inputStream.bufferedReader().use { it.readText() }
+        println("Extracted to $dictDir: $output")
+        return dictDir
     }
 
-    private fun buildDict(dictDir: Path) {
+    private fun buildMecabDictionary(dictDir: File) {
         listOf(
             listOf("./configure", "--with-charset", "utf-8"),
             listOf("make"),
         ).forEach { command ->
             val processBuilder =
                 ProcessBuilder(command)
-                    .directory(dictDir.toFile())
+                    .directory(dictDir)
                     .redirectErrorStream(true)
             val process = processBuilder.start()
             val output = process.inputStream.bufferedReader().use { it.readText() }
@@ -85,183 +225,17 @@ open class BuildDictTask : DefaultTask() {
         }
     }
 
-    private fun convertFiles(mecabDictDir: Path): List<io.github.tokuhirom.momiji.gradle.CsvRow> {
-        val csvFiles =
-            mecabDictDir.toFile().listFiles { _, name ->
-                name.endsWith(".csv")
-            }
-        checkNotNull(csvFiles) {
-            "csvFiles must not null"
+    private fun copyResources(mecabDictDir: File) {
+        val destDir =
+            project.layout.projectDirectory.asFile
+                .resolve("src/commonMain/resources/mecab-$dicType")
+        destDir.mkdirs()
+
+        listOf("sys.dic", "unk.dic", "char.bin", "matrix.bin").forEach { file ->
+            val src = mecabDictDir.resolve(file)
+            val dest = destDir.resolve(file)
+            println("Copying $src to $dest")
+            src.copyTo(dest, overwrite = true)
         }
-        val eucJpCharset = Charset.forName("EUC-JP")
-        val lines =
-            csvFiles
-                .flatMap { it.readLines(eucJpCharset) }
-                .map {
-                    io.github.tokuhirom.momiji.gradle.CsvRow
-                        .parse(it)
-                }.sortedBy { it.surface }
-
-        val outputCsv =
-            project.layout.projectDirectory
-                .asFile
-                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/dictcsv")
-
-        writeChunks(
-            outputCsv,
-            src = lines.joinToString("\n") { it.raw },
-            pkg = "io.github.tokuhirom.momiji.ipadic.dictcsv",
-            filePrefix = "DictCsv",
-            variablePrefix = "DICT_CSV",
-        )
-        println("Converted to $outputCsv")
-
-        return lines
-    }
-
-    @OptIn(ExperimentalEncodingApi::class)
-    private fun buildKdary(wordEntries: List<io.github.tokuhirom.momiji.gradle.CsvRow>) {
-        val kdary = KDary.build(wordEntries.map { it.surface.toByteArray(Charsets.UTF_8) })
-        val byteArray = kdary.toByteArray()
-
-        val baseDir =
-            project.layout.projectDirectory
-                .asFile
-                .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/kdary")
-
-        val src = Base64.encode(byteArray)
-        writeChunks(
-            baseDir,
-            src,
-            pkg = "io.github.tokuhirom.momiji.ipadic.kdary",
-            filePrefix = "KDary",
-            variablePrefix = "KDARY_BASE64",
-        )
-
-        println("Wrote dictionary to $baseDir")
-    }
-
-    private fun writeChunks(
-        baseDir: File,
-        src: String,
-        pkg: String,
-        filePrefix: String,
-        variablePrefix: String,
-    ) {
-        baseDir.mkdirs()
-
-        // 1024 -> Matrix
-        // 65535 文字が最大っぽい。
-        // https://stackoverflow.com/questions/62098263/kotlin-string-max-length-kotlin-file-with-a-long-string-is-not-compiling
-        val groups = splitStringByBytes(src)
-        val chunkGroup = groups.chunked(10)
-
-        chunkGroup.forEachIndexed { index, chunk ->
-            baseDir.resolve("$filePrefix$index.kt").bufferedWriter().use { writer ->
-                writer.write("@file:Suppress(\"ktlint:standard:max-line-length\")\n\n")
-                writer.write("package $pkg\n\n")
-                writer.write("internal val ${variablePrefix}_$index = listOf(\n")
-                chunk.forEach {
-                    writer.write("    \"\"\"${escapeKotlinString(it)}\"\"\",\n")
-                }
-                writer.write(").joinToString(\"\")\n")
-                writer.newLine()
-            }
-        }
-
-        baseDir.resolve("$filePrefix.kt").bufferedWriter().use { writer ->
-            writer.write("package $pkg\n\n")
-            writer.write("val $variablePrefix = ")
-            writer.write(
-                List(chunkGroup.size) { index ->
-                    "${variablePrefix}_$index"
-                }.joinToString("+"),
-            )
-            writer.write("\n\n")
-        }
-    }
-
-    @OptIn(ExperimentalEncodingApi::class)
-    private fun copyFiles(mecabDictDir: Path) {
-        // char.def は text 形式のほうが小さいので text 形式を採用
-        listOf("char.def", "unk.def").forEach { file ->
-            val baseName = file.replace(".def", "")
-            val sourceFile = File(mecabDictDir.toFile(), file)
-            val baseDir =
-                project.layout.projectDirectory
-                    .asFile
-                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/$baseName")
-
-            sourceFile.bufferedReader(Charset.forName("EUC-JP")).use { reader ->
-                writeChunks(
-                    baseDir,
-                    src = reader.readText(),
-                    pkg = "io.github.tokuhirom.momiji.ipadic.$baseName",
-                    filePrefix =
-                        baseName.replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                        },
-                    variablePrefix = baseName.uppercase(Locale.getDefault()),
-                )
-            }
-            println("Copied $file")
-        }
-
-        // write matrix.bin
-        // matrix.bin は明らかにバイナリ形式のほうが空間効率が良い。
-        run {
-            val sourceFile: File = mecabDictDir.toFile().resolve("matrix.bin")
-            val baseDir =
-                project.layout.projectDirectory
-                    .asFile
-                    .resolve("src/generated/commonMain/kotlin/io/github/tokuhirom/momiji/ipadic/matrix")
-
-            val bytes = sourceFile.readBytes()
-            val base64 = Base64.encode(bytes)
-            writeChunks(
-                baseDir,
-                src = base64,
-                pkg = "io.github.tokuhirom.momiji.ipadic.matrix",
-                filePrefix = "Matrix",
-                variablePrefix = "Matrix",
-            )
-            println("Copied matrix.bin")
-        }
-    }
-
-    private fun escapeKotlinString(src: String): String =
-        src
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\$", "\${'\$'}")
-            .replace("\r", "\\r")
-
-    private fun splitStringByBytes(
-        input: String,
-        maxBytes: Int = 65535,
-    ): List<String> {
-        val charset = Charset.forName("UTF-8")
-        val byteBuffer = input.toByteArray(charset)
-
-        var start = 0
-        val parts = mutableListOf<String>()
-
-        while (start < byteBuffer.size) {
-            var end = start + maxBytes
-            if (end >= byteBuffer.size) {
-                end = byteBuffer.size
-            } else {
-                // UTF-8のマルチバイト文字が途中で切れないように調整
-                while (end > start && (byteBuffer[end].toInt() and 0xC0) == 0x80) {
-                    end--
-                }
-            }
-
-            val part = String(byteBuffer, start, end - start, charset)
-            parts.add(part)
-            start = end
-        }
-
-        return parts
     }
 }
