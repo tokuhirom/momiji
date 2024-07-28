@@ -43,7 +43,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation("io.kotest:kotest-framework-engine:5.0.0")
-                implementation("io.kotest:kotest-framework-datatest:5.0.0")
+                implementation("io.kotest:kotest-framework-datatest:5.9.1")
             }
         }
         val jvmMain by getting {
