@@ -41,6 +41,8 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.kotest:kotest-framework-engine:5.0.0")
+                implementation("io.kotest:kotest-framework-datatest:5.0.0")
             }
         }
         val jvmMain by getting {

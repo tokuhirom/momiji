@@ -5,6 +5,14 @@ import kotlin.test.assertEquals
 
 class MomijiIpadicLoaderCommonTest {
     @Test
+    fun testDot() {
+        val loader = MomijiIpadicLoader()
+        val builder = loader.load()
+        val lattice = builder.buildLattice("ハイ")
+        println(lattice.toDot())
+    }
+
+    @Test
     fun testLoadMatrix() {
         val loader = MomijiIpadicLoader()
         val matrix = loader.loadMatrix()
