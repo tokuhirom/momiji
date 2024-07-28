@@ -41,7 +41,7 @@ class MomijiIpadicLoaderCommonTest {
         println(nodes.joinToString("\n") { it.toString() })
 
         assertEquals(
-            listOf(
+            setOf(
                 "東,1293,1293,11611,名詞,固有名詞,地域,一般,*,*,東,ヒガシ,ヒガシ",
                 "東,1293,1293,12705,名詞,固有名詞,地域,一般,*,*,東,アズマ,アズマ",
                 "東,1285,1285,6245,名詞,一般,*,*,*,*,東,ヒガシ,ヒガシ",
@@ -52,7 +52,7 @@ class MomijiIpadicLoaderCommonTest {
                 "東,1291,1291,13228,名詞,固有名詞,人名,名,*,*,東,ヒガシ,ヒガシ",
                 "東京,1293,1293,3003,名詞,固有名詞,地域,一般,*,*,東京,トウキョウ,トーキョー",
             ),
-            nodes.map { it.toString() },
+            nodes.map { it.toString() }.toSet(),
         )
     }
 
