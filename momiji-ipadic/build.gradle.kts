@@ -75,6 +75,8 @@ tasks.withType<Test> {
         showCauses = true
         showStackTraces = true
     }
+
+    useJUnitPlatform()
 }
 
 tasks.withType<KotlinJvmTest> {
