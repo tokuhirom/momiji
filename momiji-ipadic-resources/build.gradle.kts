@@ -1,5 +1,4 @@
 import Mecab_dict_ipadic_gradle.BuildDictTask
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 
 plugins {
@@ -9,11 +8,6 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    compilerOptions {
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-
     jvm {
     }
 
