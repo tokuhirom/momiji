@@ -33,6 +33,9 @@ open class BuildDictTask : DefaultTask() {
         when (type) {
             "resources" -> copyResources(mecabDictDir)
             "code" -> SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
+            "none" -> {
+                println("Do nothing")
+            }
         }
     }
 
