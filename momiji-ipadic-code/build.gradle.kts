@@ -1,4 +1,4 @@
-import Mecab_dict_ipadic_gradle.*
+import Mecab_dict_ipadic_gradle.BuildDictTask
 
 
 plugins {

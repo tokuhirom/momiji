@@ -1,4 +1,4 @@
-import Mecab_dict_ipadic_gradle.*
+import Mecab_dict_ipadic_gradle.BuildDictTask
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 
@@ -16,18 +16,6 @@ kotlin {
 
     jvm {
     }
-    js {
-        nodejs {
-            testTask {
-                useMocha {
-                    timeout = "100000" // 100 seconds timeout
-                }
-            }
-        }
-    }
-    macosArm64()
-//    macosX64()
-    linuxX64()
 
     sourceSets {
         val commonMain by getting {
