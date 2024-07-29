@@ -17,6 +17,10 @@ mecab-ipadic の辞書を利用することを推奨します。辞書のバン�
 
 UniDic は ファイルサイズが 1GB を超えるため、artifact としての配布は現実的には難しいです。
 
+## How to build
+
+    ./gradlew buildDict build
+
 ## 参考文献
 
  * [Taiyaki](https://www.jonki.net/entry/2019/12/01/000807)
