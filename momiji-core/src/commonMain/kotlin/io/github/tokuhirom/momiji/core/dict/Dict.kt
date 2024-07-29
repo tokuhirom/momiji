@@ -44,9 +44,11 @@ data class Dict(
         byteArray: ByteArray,
         startIndex: Int,
     ): String {
-        val endIndex = byteArray.drop(startIndex).indexOf(0)
-        val validEndIndex = if (endIndex == -1) byteArray.size else endIndex + startIndex
-        return byteArray.copyOfRange(startIndex, validEndIndex).decodeToString()
+        var endIndex = startIndex
+        while (endIndex < byteArray.size && byteArray[endIndex] != 0.toByte()) {
+            endIndex++
+        }
+        return byteArray.copyOfRange(startIndex, endIndex).decodeToString()
     }
 
     private fun tokenSize(resultPair: ResultPair): Int = resultPair.value and 0xFF
