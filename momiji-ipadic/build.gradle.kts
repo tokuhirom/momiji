@@ -27,7 +27,7 @@ kotlin {
         }
     }
     macosArm64()
-//    macosX64()
+    macosX64()
     linuxX64()
 
     sourceSets {
@@ -60,6 +60,11 @@ kotlin {
             }
         }
         val macosArm64Main by getting {
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
+        }
+        val macosX64Main by getting {
             dependencies {
                 implementation(project(":momiji-ipadic-code"))
             }
