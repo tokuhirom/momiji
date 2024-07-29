@@ -37,6 +37,12 @@ jobs:
         with:
           arguments: :samples:web:build
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: samples/web/build/dist/js/productionExecutable
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -54,4 +60,3 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          build_dir: samples/web/build/dist/js/productionExecutable
