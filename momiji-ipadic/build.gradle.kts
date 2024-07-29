@@ -64,6 +64,11 @@ kotlin {
                 implementation(project(":momiji-ipadic-code"))
             }
         }
+        val macosX64Main by getting {
+            dependencies {
+                implementation(project(":momiji-ipadic-code"))
+            }
+        }
     }
 }
 
