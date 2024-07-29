@@ -10,7 +10,7 @@ class DartsJVMTest {
 
     @Test
     fun testFoo() {
-        val path = "../".toPath().resolve("momiji-ipadic/build/dict/unk.dic")
+        val path = "../build/dict/unk.dic".toPath()
         if (!fileSystem.exists(path)) {
             println("file not found. skip the test.: $path")
             return
@@ -47,7 +47,7 @@ class DartsJVMTest {
 
     @Test
     fun testSysDic() {
-        val path = "../".toPath().resolve("momiji-ipadic/build/dict/sys.dic")
+        val path = "../build/dict/sys.dic".toPath()
         if (!fileSystem.exists(path)) {
             println("file not found. skip the test.: $path")
             return

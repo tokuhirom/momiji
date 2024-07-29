@@ -10,7 +10,7 @@ class CharMapJVMTest {
 
     @Test
     fun testBinary() {
-        val path = "../".toPath().resolve("momiji-ipadic/build/dict/char.bin")
+        val path = "../".toPath().resolve("build/dict/char.bin")
         if (!fileSystem.exists(path)) {
             println("file not found. skip the test.: $path")
             return
@@ -34,6 +34,7 @@ class CharMapJVMTest {
             '^' to "SYMBOL 1 1 0",
         ).forEach { (ch, expected) ->
             val info = charmap.resolve(ch)
+            println("$ch $info")
             assertEquals(
                 expected,
                 charmap.categoryName(info.defaultType) + " " +

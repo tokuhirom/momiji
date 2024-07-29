@@ -1,6 +1,3 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports", "DEPRECATION")
-
-import Mecab_dict_ipadic_gradle.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
@@ -78,6 +75,8 @@ tasks.withType<Test> {
         showCauses = true
         showStackTraces = true
     }
+
+    useJUnitPlatform()
 }
 
 tasks.withType<KotlinJvmTest> {

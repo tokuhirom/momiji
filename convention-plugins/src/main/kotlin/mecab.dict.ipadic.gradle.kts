@@ -12,11 +12,9 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 open class BuildDictTask : DefaultTask() {
-    @Input
-    var url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
+    private val url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
 
-    @Input
-    var dicType = "ipadic"
+    private val dicType = "ipadic"
 
     @Input
     var type = "resources"
@@ -33,6 +31,9 @@ open class BuildDictTask : DefaultTask() {
         when (type) {
             "resources" -> copyResources(mecabDictDir)
             "code" -> SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
+            else -> {
+                error("Unknown build type: $type")
+            }
         }
     }
 
@@ -168,60 +169,75 @@ open class BuildDictTask : DefaultTask() {
     }
 
     private fun buildDir() =
-        project.layout.buildDirectory
+        project.rootProject.layout.buildDirectory
             .get()
             .asFile
 
-    private fun download(): File =
-        runBlocking {
-            val client =
-                HttpClient {
-                    install(HttpTimeout) {
-                        requestTimeoutMillis = 3 * 60 * 1000
-                        connectTimeoutMillis = 3 * 60 * 1000
-                        socketTimeoutMillis = 3 * 60 * 1000
+    private fun download(): File {
+        val file = buildDir().resolve("mecab-$dicType.tar.gz")
+        if (file.exists()) {
+            println("$file already exists.")
+        } else {
+            runBlocking {
+                println("Downloading $url")
+                val client =
+                    HttpClient {
+                        install(HttpTimeout) {
+                            requestTimeoutMillis = 3 * 60 * 1000
+                            connectTimeoutMillis = 3 * 60 * 1000
+                            socketTimeoutMillis = 3 * 60 * 1000
+                        }
                     }
-                }
-            val response = client.get(url)
-            val file = buildDir().resolve("mecab-$dicType.tar.gz")
-            response.bodyAsChannel().copyTo(file.outputStream())
-            println("Downloaded $file")
-            file
+                val response = client.get(url)
+                response.bodyAsChannel().copyTo(file.outputStream())
+                println("Downloaded $file")
+            }
         }
+        return file
+    }
 
     private fun extract(tarball: File): File {
         val dictDir = buildDir().resolve("dict")
-        dictDir.mkdirs()
+        if (dictDir.resolve("sys.dic").exists()) {
+            println("sys.dic already exists in $dictDir")
+            return dictDir
+        } else {
+            dictDir.mkdirs()
 
-        val processBuilder =
-            ProcessBuilder(
-                "tar",
-                "-xzvf",
-                tarball.absolutePath,
-                "--strip-components=1",
-                "-C",
-                dictDir.absolutePath,
-            ).redirectErrorStream(true)
-        val process = processBuilder.start()
-        process.waitFor()
-        val output = process.inputStream.bufferedReader().use { it.readText() }
-        println("Extracted to $dictDir: $output")
-        return dictDir
+            val processBuilder =
+                ProcessBuilder(
+                    "tar",
+                    "-xzvf",
+                    tarball.absolutePath,
+                    "--strip-components=1",
+                    "-C",
+                    dictDir.absolutePath,
+                ).redirectErrorStream(true)
+            val process = processBuilder.start()
+            process.waitFor()
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            println("Extracted to $dictDir: $output")
+            return dictDir
+        }
     }
 
     private fun buildMecabDictionary(dictDir: File) {
-        listOf(
-            listOf("./configure", "--with-charset", "utf-8"),
-            listOf("make"),
-        ).forEach { command ->
-            val processBuilder =
-                ProcessBuilder(command)
-                    .directory(dictDir)
-                    .redirectErrorStream(true)
-            val process = processBuilder.start()
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            val status = process.waitFor()
-            println("$command: $status: $output")
+        if (dictDir.resolve("sys.dic").exists()) {
+            println("sys.dic already exists")
+        } else {
+            listOf(
+                listOf("./configure", "--with-charset", "utf-8"),
+                listOf("make"),
+            ).forEach { command ->
+                val processBuilder =
+                    ProcessBuilder(command)
+                        .directory(dictDir)
+                        .redirectErrorStream(true)
+                val process = processBuilder.start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                val status = process.waitFor()
+                println("$command: $status: $output")
+            }
         }
     }
 

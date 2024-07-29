@@ -1,5 +1,4 @@
 import Mecab_dict_ipadic_gradle.BuildDictTask
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 
 plugins {
@@ -9,11 +8,6 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    compilerOptions {
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-
     jvm {
     }
 
@@ -32,8 +26,6 @@ kotlin {
 }
 
 tasks.register<BuildDictTask>("buildDict") {
-    url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
-    dicType = "ipadic"
     type = "resources"
 }
 
