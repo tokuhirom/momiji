@@ -38,7 +38,7 @@ jobs:
           arguments: :sample:web:buildDict :samples:web:build
 
       - name: Show directory structure
-        ruN: ls -R samples/web/build/dist/
+        run: ls -R samples/web/build/dist/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
