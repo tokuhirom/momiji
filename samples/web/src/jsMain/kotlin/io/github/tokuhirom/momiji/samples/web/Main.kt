@@ -63,7 +63,7 @@ class WebApp {
         loadingStatusElement.textContent = "Loading $fileName"
 
         console.log("Loading $fileName")
-        val res = httpClient.get("$fileName")
+        val res = httpClient.get(fileName)
         val bytes = res.readBytes()
         val result: T = callback(bytes)
         console.log("Loaded $fileName")
@@ -75,19 +75,19 @@ class WebApp {
 
     private suspend fun loadLatticeBuilder(): LatticeBuilder {
         val charMap =
-            loadBinary("mecab-ipadic/char.bin") { bytes ->
+            loadBinary("./mecab-ipadic/char.bin") { bytes ->
                 CharMap.parseBinary(bytes)
             }
         val matrix =
-            loadBinary("mecab-ipadic/matrix.bin") { bytes ->
+            loadBinary("./mecab-ipadic/matrix.bin") { bytes ->
                 Matrix.parseBinary(bytes)
             }
         val unknown =
-            loadBinary("mecab-ipadic/unk.dic") { bytes ->
+            loadBinary("./mecab-ipadic/unk.dic") { bytes ->
                 Dict.parseBinary(bytes)
             }
         val sys =
-            loadBinary("mecab-ipadic/sys.dic") { bytes ->
+            loadBinary("./mecab-ipadic/sys.dic") { bytes ->
                 Dict.parseBinary(bytes)
             }
 
