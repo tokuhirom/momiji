@@ -9,7 +9,7 @@ class MomijiBinaryDictLoaderTest {
 
     @Test
     fun testLoad() {
-        val path = "build/dict"
+        val path = "../build/dict"
         if (!fileSystem.exists(path.toPath())) {
             println("file not found. skip the test.: $path")
             return

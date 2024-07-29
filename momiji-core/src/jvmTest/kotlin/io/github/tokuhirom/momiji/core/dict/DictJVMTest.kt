@@ -10,7 +10,7 @@ class DictJVMTest {
 
     @Test
     fun testBinary() {
-        val path = "../".toPath().resolve("momiji-ipadic/build/dict/unk.dic")
+        val path = "../build/dict/unk.dic".toPath().resolve("momiji-ipadic/")
         if (!fileSystem.exists(path)) {
             println("file not found. skip the test.: $path")
             return
