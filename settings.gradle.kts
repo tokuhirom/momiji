@@ -17,3 +17,5 @@ include(":momiji-ipadic")
 include(":momiji-ipadic-code")
 include(":momiji-ipadic-resources")
 include(":momiji-binary-dict")
+
+include(":samples:web")

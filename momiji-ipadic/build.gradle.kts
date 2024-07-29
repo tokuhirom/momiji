@@ -33,7 +33,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":momiji-core"))
+                api(project(":momiji-core"))
             }
         }
         val commonTest by getting {
