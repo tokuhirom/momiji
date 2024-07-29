@@ -12,11 +12,9 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 open class BuildDictTask : DefaultTask() {
-    @Input
-    var url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
+    private val url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
 
-    @Input
-    var dicType = "ipadic"
+    private val dicType = "ipadic"
 
     @Input
     var type = "resources"
@@ -33,8 +31,8 @@ open class BuildDictTask : DefaultTask() {
         when (type) {
             "resources" -> copyResources(mecabDictDir)
             "code" -> SourceCodeGenerator(project, dicType).generateAll(mecabDictDir)
-            "none" -> {
-                println("Do nothing")
+            else -> {
+                error("Unknown build type: $type")
             }
         }
     }
