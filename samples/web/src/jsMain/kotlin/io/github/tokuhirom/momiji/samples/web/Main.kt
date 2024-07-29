@@ -13,6 +13,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -60,34 +61,36 @@ class WebApp {
         fileName: String,
         callback: suspend (ByteArray) -> T,
     ): T {
-        loadingStatusElement.textContent = "Loading $fileName"
+        val pathName = window.location.pathname + fileName
 
-        console.log("Loading $fileName")
-        val res = httpClient.get(fileName)
+        console.log("Loading $pathName")
+        loadingStatusElement.textContent = "Loading $pathName"
+
+        val res = httpClient.get(pathName)
         val bytes = res.readBytes()
         val result: T = callback(bytes)
-        console.log("Loaded $fileName")
+        console.log("Loaded $pathName")
 
-        loadingStatusElement.textContent = "Loaded $fileName"
+        loadingStatusElement.textContent = "Loaded $pathName"
 
         return result
     }
 
     private suspend fun loadLatticeBuilder(): LatticeBuilder {
         val charMap =
-            loadBinary("./mecab-ipadic/char.bin") { bytes ->
+            loadBinary("mecab-ipadic/char.bin") { bytes ->
                 CharMap.parseBinary(bytes)
             }
         val matrix =
-            loadBinary("./mecab-ipadic/matrix.bin") { bytes ->
+            loadBinary("mecab-ipadic/matrix.bin") { bytes ->
                 Matrix.parseBinary(bytes)
             }
         val unknown =
-            loadBinary("./mecab-ipadic/unk.dic") { bytes ->
+            loadBinary("mecab-ipadic/unk.dic") { bytes ->
                 Dict.parseBinary(bytes)
             }
         val sys =
-            loadBinary("./mecab-ipadic/sys.dic") { bytes ->
+            loadBinary("mecab-ipadic/sys.dic") { bytes ->
                 Dict.parseBinary(bytes)
             }
 
@@ -115,6 +118,4 @@ fun main() {
 
         webApp.start(input)
     })
-
-    document.getElementById("root")?.textContent = "Hello Kotlin World!"
 }

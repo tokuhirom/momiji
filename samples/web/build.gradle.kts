@@ -10,6 +10,9 @@ kotlin {
     js {
         browser {
             binaries.executable()
+            webpackTask {
+                this.mainOutputFileName = "web.[contenthash].js"
+            }
         }
     }
 
@@ -23,11 +26,9 @@ kotlin {
                 implementation(project.dependencies.platform("io.ktor:ktor-bom:2.3.12"))
                 implementation("io.ktor:ktor-client-core")
                 implementation("io.ktor:ktor-client-js")
-//                implementation("io.ktor:ktor-serialization-kotlinx-json")
-//                implementation("io.ktor:ktor-client-content-negotiation")
-//                implementation("io.ktor:ktor-client-serialization")
                 implementation("io.ktor:ktor-client-logging")
-//                implementation("io.ktor:ktor-client-json")
+
+                implementation(devNpm("html-webpack-plugin", "5.5.0"))
             }
         }
         val jsTest by getting {
@@ -40,4 +41,8 @@ kotlin {
 
 tasks.register<BuildDictTask>("buildDict") {
     type = "resources"
+}
+
+tasks.named<ProcessResources>("jsProcessResources") {
+    exclude("index.html")
 }
