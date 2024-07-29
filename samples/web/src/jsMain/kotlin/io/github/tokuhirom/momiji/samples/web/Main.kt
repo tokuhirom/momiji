@@ -13,35 +13,81 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
 import kotlinx.browser.document
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class WebApp {
-    private var latticeBuilder: LatticeBuilder? = null
+    private var latticeBuilder: Deferred<LatticeBuilder> =
+        GlobalScope.async {
+            loadLatticeBuilder()
+        }
     private val resultElement = document.getElementById("result")!!
+    private val httpClient =
+        HttpClient(Js) {
+            install(Logging) {
+                level = LogLevel.INFO
+            }
+        }
 
     fun start(input: String) {
-        if (latticeBuilder == null) {
+        GlobalScope.launch {
             console.log("Loading dictionaries...")
             resultElement.textContent = "Loading dictionaries..."
-            GlobalScope.launch {
-                latticeBuilder = loadLatticeBuilder()
-                analyze(input)
-            }
-        } else {
-            analyze(input)
+            val builder = latticeBuilder.await()
+            console.log("Start analyzing...")
+            analyze(input, builder)
         }
     }
 
-    private fun analyze(input: String) {
+    private fun analyze(
+        input: String,
+        latticeBuilder: LatticeBuilder,
+    ) {
         console.log("Building lattice...")
         resultElement.textContent = "Building lattice..."
-        val lattice = latticeBuilder!!.buildLattice(input)
+        val lattice = latticeBuilder.buildLattice(input)
         console.log("Analyzing lattice by viterbi algorithm...")
         resultElement.textContent = "Analyzing lattice by viterbi algorithm..."
         val nodes = lattice.viterbi()
         val result = nodes.joinToString("\n") { it.toString() }
         resultElement.textContent = result
+    }
+
+    private suspend fun <T> loadBinary(
+        fileName: String,
+        callback: suspend (ByteArray) -> T,
+    ): T {
+        console.log("Loading $fileName")
+        val res = httpClient.get("$fileName")
+        val bytes = res.readBytes()
+        val result: T = callback(bytes)
+        console.log("Loaded $fileName")
+        return result
+    }
+
+    private suspend fun loadLatticeBuilder(): LatticeBuilder {
+        val charMap =
+            loadBinary("mecab-ipadic/char.bin") { bytes ->
+                CharMap.parseBinary(bytes)
+            }
+        val matrix =
+            loadBinary("mecab-ipadic/matrix.bin") { bytes ->
+                Matrix.parseBinary(bytes)
+            }
+        val unknown =
+            loadBinary("mecab-ipadic/unk.dic") { bytes ->
+                Dict.parseBinary(bytes)
+            }
+        val sys =
+            loadBinary("mecab-ipadic/sys.dic") { bytes ->
+                Dict.parseBinary(bytes)
+            }
+
+        val costManager = CostManager(matrix)
+        val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
+        return LatticeBuilder(sys, costManager, unknownWordDetector)
     }
 }
 
@@ -63,46 +109,4 @@ fun main() {
     })
 
     document.getElementById("root")?.textContent = "Hello Kotlin World!"
-}
-
-suspend fun loadLatticeBuilder(): LatticeBuilder {
-    val client =
-        HttpClient(Js) {
-            install(Logging) {
-                level = LogLevel.INFO
-            }
-        }
-
-    suspend fun <T> load(
-        fileName: String,
-        callback: suspend (ByteArray) -> T,
-    ): T {
-        console.log("Loading $fileName")
-        val res = client.get("$fileName")
-        val bytes = res.readBytes()
-        val result: T = callback(bytes)
-        console.log("Loaded $fileName")
-        return result
-    }
-
-    val charMap =
-        load("mecab-ipadic/char.bin") { bytes ->
-            CharMap.parseBinary(bytes)
-        }
-    val matrix =
-        load("mecab-ipadic/matrix.bin") { bytes ->
-            Matrix.parseBinary(bytes)
-        }
-    val unknown =
-        load("mecab-ipadic/unk.dic") { bytes ->
-            Dict.parseBinary(bytes)
-        }
-    val sys =
-        load("mecab-ipadic/sys.dic") { bytes ->
-            Dict.parseBinary(bytes)
-        }
-
-    val costManager = CostManager(matrix)
-    val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
-    return LatticeBuilder(sys, costManager, unknownWordDetector)
 }
