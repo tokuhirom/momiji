@@ -1,5 +1,3 @@
-import Mecab_dict_ipadic_gradle.BuildDictTask
-
 plugins {
     kotlin("multiplatform")
     id("module.publication")
@@ -40,12 +38,6 @@ kotlin {
             }
         }
     }
-}
-
-tasks.register<BuildDictTask>("buildDict") {
-    url = "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM"
-    dicType = "ipadic"
-    type = "none"
 }
 
 /*
