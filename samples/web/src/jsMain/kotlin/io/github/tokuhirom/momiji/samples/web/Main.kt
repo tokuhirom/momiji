@@ -12,110 +12,123 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
-import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import react.FC
+import react.Fragment
+import react.create
+import react.dom.client.createRoot
+import react.dom.html.ReactHTML.button
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.form
+import react.dom.html.ReactHTML.h1
+import react.dom.html.ReactHTML.p
+import react.dom.html.ReactHTML.pre
+import react.dom.html.ReactHTML.textarea
+import react.useEffect
+import react.useState
+import web.dom.document
 
-class WebApp {
-    private var latticeBuilder: Deferred<LatticeBuilder> =
-        GlobalScope.async {
-            loadLatticeBuilder()
-        }
-    private val resultElement = document.getElementById("result")!!
-    private val loadingStatusElement = document.getElementById("loadingStatus")!!
-    private val httpClient =
-        HttpClient(Js) {
-            install(Logging) {
-                level = LogLevel.INFO
-            }
-        }
-
-    fun start(input: String) {
-        GlobalScope.launch {
-            console.log("Loading dictionaries...")
-            resultElement.textContent = "Loading dictionaries..."
-            val builder = latticeBuilder.await()
-            console.log("Start analyzing...")
-            analyze(input, builder)
+private val httpClient =
+    HttpClient(Js) {
+        install(Logging) {
+            level = LogLevel.INFO
         }
     }
 
-    private fun analyze(
-        input: String,
-        latticeBuilder: LatticeBuilder,
-    ) {
-        console.log("Building lattice...")
-        resultElement.textContent = "Building lattice..."
-        val lattice = latticeBuilder.buildLattice(input)
-        console.log("Analyzing lattice by viterbi algorithm...")
-        resultElement.textContent = "Analyzing lattice by viterbi algorithm..."
-        val nodes = lattice.viterbi()
-        val result = nodes.joinToString("\n") { it.toString() }
-        resultElement.textContent = result
-    }
+private suspend fun <T> loadBinary(
+    fileName: String,
+    callback: suspend (ByteArray) -> T,
+): T {
+    val pathName = window.location.pathname + fileName
 
-    private suspend fun <T> loadBinary(
-        fileName: String,
-        callback: suspend (ByteArray) -> T,
-    ): T {
-        val pathName = window.location.pathname + fileName
+    console.log("Loading $pathName")
 
-        console.log("Loading $pathName")
-        loadingStatusElement.textContent = "Loading $pathName"
+    val res = httpClient.get(pathName)
+    val bytes = res.readBytes()
+    val result: T = callback(bytes)
+    console.log("Loaded $pathName")
 
-        val res = httpClient.get(pathName)
-        val bytes = res.readBytes()
-        val result: T = callback(bytes)
-        console.log("Loaded $pathName")
+    return result
+}
 
-        loadingStatusElement.textContent = "Loaded $pathName"
+private suspend fun loadLatticeBuilder(): LatticeBuilder {
+    val charMap =
+        loadBinary("mecab-ipadic/char.bin") { bytes ->
+            CharMap.parseBinary(bytes)
+        }
+    val matrix =
+        loadBinary("mecab-ipadic/matrix.bin") { bytes ->
+            Matrix.parseBinary(bytes)
+        }
+    val unknown =
+        loadBinary("mecab-ipadic/unk.dic") { bytes ->
+            Dict.parseBinary(bytes)
+        }
+    val sys =
+        loadBinary("mecab-ipadic/sys.dic") { bytes ->
+            Dict.parseBinary(bytes)
+        }
 
-        return result
-    }
+    val costManager = CostManager(matrix)
+    val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
+    return LatticeBuilder(sys, costManager, unknownWordDetector)
+}
 
-    private suspend fun loadLatticeBuilder(): LatticeBuilder {
-        val charMap =
-            loadBinary("mecab-ipadic/char.bin") { bytes ->
-                CharMap.parseBinary(bytes)
+private val scope = MainScope()
+
+val MyContent = FC {
+    val (latticeBuilder, setLatticeBuilder) = useState<LatticeBuilder?>(null)
+    val (input, setInput) = useState("日本語のサンプル文言でございます。")
+    val (result, setResult) = useState<String>("")
+
+    div {
+        h1 {
+            if (latticeBuilder != null) {
+                +"Momiji: Ready to use."
+            } else {
+                +"Momiji: Loading dictionary..."
             }
-        val matrix =
-            loadBinary("mecab-ipadic/matrix.bin") { bytes ->
-                Matrix.parseBinary(bytes)
-            }
-        val unknown =
-            loadBinary("mecab-ipadic/unk.dic") { bytes ->
-                Dict.parseBinary(bytes)
-            }
-        val sys =
-            loadBinary("mecab-ipadic/sys.dic") { bytes ->
-                Dict.parseBinary(bytes)
+        }
+
+        p { +"日本語形態素解析機 Momiji のデモサイトです。" }
+
+        form {
+            useEffect {
+                setLatticeBuilder(loadLatticeBuilder())
             }
 
-        loadingStatusElement.textContent = "Loaded all dictionary data."
+            onSubmit = {
+                it.preventDefault()
 
-        val costManager = CostManager(matrix)
-        val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
-        return LatticeBuilder(sys, costManager, unknownWordDetector)
+                scope.launch {
+                    val latticeBuilder = loadLatticeBuilder()
+                    val lattice = latticeBuilder.buildLattice(input)
+                    val nodes = lattice.viterbi()
+                    setResult(nodes.joinToString("\n") { node -> node.toString() })
+                }
+            }
+
+            textarea {
+                value = input
+                onChange = { event -> setInput(event.target.value) }
+            }
+            button { +"解析" }
+        }
+
+        div {
+            pre { +"$result" }
+        }
     }
 }
+
 
 fun main() {
     console.log("Hello Console World!")
 
-    val inputElement = document.getElementById("in")!!
-    val formElement = document.getElementById("myForm")!!
-
-    val webApp = WebApp()
-
-    formElement.addEventListener("submit", { event ->
-        event.preventDefault()
-        event.stopPropagation()
-
-        val input = inputElement.asDynamic().value as String
-
-        webApp.start(input)
+    val container = document.getElementById("root") ?: error("Couldn't find root container!")
+    createRoot(container).render(Fragment.create {
+        MyContent()
     })
 }
