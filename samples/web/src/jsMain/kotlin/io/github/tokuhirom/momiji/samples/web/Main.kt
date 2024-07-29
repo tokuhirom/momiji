@@ -24,6 +24,7 @@ class WebApp {
             loadLatticeBuilder()
         }
     private val resultElement = document.getElementById("result")!!
+    private val loadingStatusElement = document.getElementById("loadingStatus")!!
     private val httpClient =
         HttpClient(Js) {
             install(Logging) {
@@ -59,11 +60,16 @@ class WebApp {
         fileName: String,
         callback: suspend (ByteArray) -> T,
     ): T {
+        loadingStatusElement.textContent = "Loading $fileName"
+
         console.log("Loading $fileName")
         val res = httpClient.get("$fileName")
         val bytes = res.readBytes()
         val result: T = callback(bytes)
         console.log("Loaded $fileName")
+
+        loadingStatusElement.textContent = "Loaded $fileName"
+
         return result
     }
 
@@ -84,6 +90,8 @@ class WebApp {
             loadBinary("mecab-ipadic/sys.dic") { bytes ->
                 Dict.parseBinary(bytes)
             }
+
+        loadingStatusElement.textContent = "Loaded all dictionary data."
 
         val costManager = CostManager(matrix)
         val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
