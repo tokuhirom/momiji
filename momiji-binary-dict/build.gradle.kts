@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("module.publication")
     id("mecab.dict.ipadic")
+    id("org.jetbrains.dokka")
 }
 
 kotlin {
@@ -51,6 +52,8 @@ mavenPublishing {
     }
 }
 
+*/
+
 tasks.dokkaHtml {
     dokkaSourceSets {
         configureEach {
@@ -58,4 +61,3 @@ tasks.dokkaHtml {
         }
     }
 }
-*/
