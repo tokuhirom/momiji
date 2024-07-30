@@ -2,6 +2,7 @@ package io.github.tokuhirom.momiji.samples.web
 
 import io.github.tokuhirom.momiji.core.CostManager
 import io.github.tokuhirom.momiji.core.LatticeBuilder
+import io.github.tokuhirom.momiji.core.Node
 import io.github.tokuhirom.momiji.core.character.CharMap
 import io.github.tokuhirom.momiji.core.dict.Dict
 import io.github.tokuhirom.momiji.core.matrix.Matrix
@@ -23,12 +24,17 @@ import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.form
 import react.dom.html.ReactHTML.h1
+import react.dom.html.ReactHTML.li
 import react.dom.html.ReactHTML.p
-import react.dom.html.ReactHTML.pre
 import react.dom.html.ReactHTML.textarea
+import react.dom.html.ReactHTML.ul
 import react.useEffect
+import react.useEffectOnce
 import react.useState
 import web.dom.document
+import react.dom.html.ReactHTML.table
+import react.dom.html.ReactHTML.td
+import react.dom.html.ReactHTML.tr
 
 private val httpClient =
     HttpClient(Js) {
@@ -53,24 +59,7 @@ private suspend fun <T> loadBinary(
     return result
 }
 
-private suspend fun loadLatticeBuilder(): LatticeBuilder {
-    val charMap =
-        loadBinary("mecab-ipadic/char.bin") { bytes ->
-            CharMap.parseBinary(bytes)
-        }
-    val matrix =
-        loadBinary("mecab-ipadic/matrix.bin") { bytes ->
-            Matrix.parseBinary(bytes)
-        }
-    val unknown =
-        loadBinary("mecab-ipadic/unk.dic") { bytes ->
-            Dict.parseBinary(bytes)
-        }
-    val sys =
-        loadBinary("mecab-ipadic/sys.dic") { bytes ->
-            Dict.parseBinary(bytes)
-        }
-
+private fun loadLatticeBuilder(charMap: CharMap, matrix: Matrix, unknown: Dict, sys: Dict): LatticeBuilder {
     val costManager = CostManager(matrix)
     val unknownWordDetector = DefaultUnknownWordDetector(charMap, unknown)
     return LatticeBuilder(sys, costManager, unknownWordDetector)
@@ -81,7 +70,11 @@ private val scope = MainScope()
 val MyContent = FC {
     val (latticeBuilder, setLatticeBuilder) = useState<LatticeBuilder?>(null)
     val (input, setInput) = useState("日本語のサンプル文言でございます。")
-    val (result, setResult) = useState<String>("")
+    val (result, setResult) = useState(emptyList<Node>())
+    val (charMap, setCharMap) = useState<CharMap?>(null)
+    val (matrix, setMatrix) = useState<Matrix?>(null)
+    val (unknown, setUnknown) = useState<Dict?>(null)
+    val (sys, setSys) = useState<Dict?>(null)
 
     div {
         h1 {
@@ -92,21 +85,81 @@ val MyContent = FC {
             }
         }
 
+        ul {
+            li {
+                if (charMap != null) {
+                    +"CharMap: Ready to use."
+                } else {
+                    +"CharMap: Loading dictionary..."
+                }
+            }
+            li {
+                if (matrix != null) {
+                    +"Matrix: Ready to use."
+                } else {
+                    +"Matrix: Loading dictionary..."
+                }
+            }
+            li {
+                if (unknown != null) {
+                    +"Unknown: Ready to use."
+                } else {
+                    +"Unknown: Loading dictionary..."
+                }
+            }
+            li {
+                if (sys != null) {
+                    +"Sys: Ready to use."
+                } else {
+                    +"Sys: Loading dictionary..."
+                }
+            }
+            li {
+                if (latticeBuilder != null) {
+                    +"LatticeBuilder: Ready to use."
+                } else {
+                    +"LatticeBuilder: Loading dictionary..."
+                }
+            }
+        }
+
         p { +"日本語形態素解析機 Momiji のデモサイトです。" }
 
         form {
-            useEffect {
-                setLatticeBuilder(loadLatticeBuilder())
+            useEffectOnce {
+                setCharMap(loadBinary("mecab-ipadic/char.bin") { bytes ->
+                    CharMap.parseBinary(bytes)
+                })
+            }
+            useEffectOnce {
+                setMatrix(loadBinary("mecab-ipadic/matrix.bin") { bytes ->
+                    Matrix.parseBinary(bytes)
+                })
+            }
+            useEffectOnce {
+                setUnknown(loadBinary("mecab-ipadic/unk.dic") { bytes ->
+                    Dict.parseBinary(bytes)
+                })
+            }
+            useEffectOnce {
+                setSys(loadBinary("mecab-ipadic/sys.dic") { bytes ->
+                    Dict.parseBinary(bytes)
+                })
+            }
+            useEffect(listOf(charMap, matrix, unknown, sys)) {
+                if (charMap != null && matrix != null && unknown != null && sys != null) {
+                    setLatticeBuilder(loadLatticeBuilder(charMap, matrix, unknown, sys))
+                }
             }
 
             onSubmit = {
                 it.preventDefault()
 
                 scope.launch {
-                    val latticeBuilder = loadLatticeBuilder()
+                    val latticeBuilder = loadLatticeBuilder(charMap!!, matrix!!, unknown!!, sys!!)
                     val lattice = latticeBuilder.buildLattice(input)
                     val nodes = lattice.viterbi()
-                    setResult(nodes.joinToString("\n") { node -> node.toString() })
+                    setResult(nodes)
                 }
             }
 
@@ -114,11 +167,29 @@ val MyContent = FC {
                 value = input
                 onChange = { event -> setInput(event.target.value) }
             }
-            button { +"解析" }
+            button {
+                disabled = latticeBuilder == null
+                +"解析"
+            }
         }
 
         div {
-            pre { +"$result" }
+            table {
+                result.forEach {node ->
+                    if (node is Node.BOS || node is Node.EOS) {
+                        return@forEach
+                    }
+
+                    tr {
+                        td {
+                            +node.surface
+                        }
+                        td {
+                            +(node.dictRow?.toString() ?: "")
+                        }
+                    }
+                }
+            }
         }
     }
 }
