@@ -1,4 +1,5 @@
 import Mecab_dict_ipadic_gradle.BuildDictTask
+import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
 
