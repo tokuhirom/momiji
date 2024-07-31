@@ -21,6 +21,10 @@ MeCab のバイナリー辞書を利用可能です。
 - momiji-ipadic: mecab-ipadic の辞書のパッケージ(kotlin コードに変換してバンドルしています)
 - momiji-binary-dict: mecab のバイナリ辞書をロードする機能を提供します。
 
+maven central にリリースされているので、maven or gradle で依存に追加すれば利用できます。
+
+https://central.sonatype.com/namespace/io.github.tokuhirom.momiji
+
 ## 辞書
 
 mecab-ipadic の辞書を利用することを推奨します。辞書のバンドルは momiji-ipadic artifact に含まれています。
