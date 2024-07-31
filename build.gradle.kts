@@ -11,14 +11,16 @@ plugins {
 }
 
 group = "io.github.tokuhirom.momiji"
-version = System.getenv("LIB_VERSION") ?: (
-    "1.0.0" +
-        if (hasProperty("release")) {
-            ""
-        } else {
-            "-SNAPSHOT"
-        }
-)
+val libVersion =
+    System.getenv("LIB_VERSION") ?: (
+        "1.0.0" +
+            if (hasProperty("release")) {
+                ""
+            } else {
+                "-SNAPSHOT"
+            }
+    )
+version = libVersion
 
 allprojects {
     repositories {
@@ -26,4 +28,5 @@ allprojects {
     }
 
     group = "io.github.tokuhirom.momiji"
+    version = libVersion
 }
