@@ -7,13 +7,13 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    uses: ./.github/workflows/ci.yml
   deploy:
-    needs: build
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install dependencies (macOS)
+        run: |
+          brew install mecab mecab-ipadic
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v3
       - uses: actions/cache@v4
