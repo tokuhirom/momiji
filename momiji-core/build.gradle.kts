@@ -1,7 +1,12 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     kotlin("multiplatform")
     id("module.publication")
     id("org.jetbrains.dokka")
+    id("com.vanniktech.maven.publish")
 }
 
 kotlin {
@@ -34,7 +39,6 @@ kotlin {
     }
 }
 
-/*
 mavenPublishing {
     configure(KotlinMultiplatform(javadocJar = JavadocJar.Dokka("dokkaHtml")))
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
@@ -44,8 +48,6 @@ mavenPublishing {
         signAllPublications()
     }
 }
-
-*/
 
 tasks.dokkaHtml {
     dokkaSourceSets {
