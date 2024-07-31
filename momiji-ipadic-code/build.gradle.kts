@@ -1,4 +1,7 @@
 import Mecab_dict_ipadic_gradle.BuildDictTask
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
+import com.vanniktech.maven.publish.SonatypeHost
 
 
 plugins {
@@ -6,6 +9,7 @@ plugins {
     id("module.publication")
     id("mecab.dict.ipadic")
     id("org.jetbrains.dokka")
+    id("com.vanniktech.maven.publish")
 }
 
 kotlin {
@@ -40,7 +44,6 @@ tasks.register<BuildDictTask>("buildDict") {
     type = "code"
 }
 
-/*
 mavenPublishing {
     configure(KotlinMultiplatform(javadocJar = JavadocJar.Dokka("dokkaHtml")))
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
@@ -50,8 +53,6 @@ mavenPublishing {
         signAllPublications()
     }
 }
-
-*/
 
 tasks.dokkaHtml {
     dokkaSourceSets {
