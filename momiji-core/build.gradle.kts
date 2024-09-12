@@ -33,7 +33,7 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:3.9.0")
+                implementation("com.squareup.okio:okio:3.9.1")
             }
         }
     }
