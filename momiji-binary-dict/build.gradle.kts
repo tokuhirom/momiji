@@ -29,7 +29,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":momiji-core"))
-                implementation("com.squareup.okio:okio:3.9.0")
+                implementation("com.squareup.okio:okio:3.9.1")
             }
         }
         val commonTest by getting {
@@ -39,7 +39,7 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:3.9.0")
+                implementation("com.squareup.okio:okio:3.9.1")
                 implementation("com.squareup.okio:okio-nodefilesystem:3.9.0")
             }
         }
