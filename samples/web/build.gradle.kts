@@ -37,7 +37,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-mui-material")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-mui-system")
 
-                implementation(project.dependencies.platform("io.ktor:ktor-bom:2.3.12"))
+                implementation(project.dependencies.platform("io.ktor:ktor-bom:3.0.0"))
                 implementation("io.ktor:ktor-client-core")
                 implementation("io.ktor:ktor-client-js")
                 implementation("io.ktor:ktor-client-logging")
